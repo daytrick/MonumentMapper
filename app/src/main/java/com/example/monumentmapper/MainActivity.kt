@@ -29,6 +29,7 @@ import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     // From: https://medium.com/@hasperong/get-current-location-with-latitude-and-longtitude-using-kotlin-2ef6c94c7b76
     private lateinit var locationManager: LocationManager
     private val locationPermissionCode = 2
+    private val defaultZoomLevel = 14.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,7 +111,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
 //        }
         // val mapPoint = GeoPoint(latitude, longitude)
 
-        controller.setZoom(6.0)
+        controller.setZoom(defaultZoomLevel)
 
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
@@ -196,7 +198,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     }
 
     override fun onLocationChanged(p0: Location) {
-        TODO("Not yet implemented")
+        controller.setCenter(GeoPoint(p0.latitude, p0.longitude))
+
     }
 
     override fun onPause() {
