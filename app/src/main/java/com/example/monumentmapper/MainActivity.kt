@@ -111,16 +111,35 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
                 controller.animateTo(myLocationOverlay.myLocation)
                 Log.i("LOC", "My location: ${myLocationOverlay.myLocation}")
 
-                // FOR MAP SCALE
-                // How to load scale from: https://github.com/pengrad/MapScaleView
-                //                    and: https://stackoverflow.com/a/43537667
-                val scaleView: MapScaleView = findViewById(R.id.scaleView)
-                scaleView.update(currentZoomLevel.toFloat(), myLocationOverlay.myLocation.latitude)
+                updateScale()
 
             }
         }
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
+
+    }
+
+
+    private fun updateScale(latitude: Double) {
+
+        // FOR MAP SCALE
+        // How to load scale from: https://github.com/pengrad/MapScaleView
+        //                    and: https://stackoverflow.com/a/43537667
+        val scaleView: MapScaleView = findViewById(R.id.scaleView)
+        Log.i("SCALE", "Trying to update scale from updateScale()")
+        scaleView.update(currentZoomLevel.toFloat(), latitude)
+
+    }
+
+
+    private fun updateScale() {
+
+        myLocationOverlay.runOnFirstFix {
+            runOnUiThread {
+                updateScale(myLocationOverlay.myLocation.latitude)
+            }
+        }
 
     }
 
@@ -186,6 +205,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
         // Copied from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
         Log.i("LOC", "onCreate:la ${event?.source?.getMapCenter()?.latitude}")
         Log.i("LOC", "onCreate:lo ${event?.source?.getMapCenter()?.longitude}")
+        updateScale()
         return true
     }
 
@@ -193,6 +213,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
         // Copied from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
         Log.i("LOC", "onZoom zoom level: ${event?.zoomLevel}   source:  ${event?.source}")
         currentZoomLevel = event?.zoomLevel!!
+        updateScale()
         return false
     }
 
