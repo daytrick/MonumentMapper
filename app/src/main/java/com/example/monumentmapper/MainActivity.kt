@@ -36,7 +36,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 
-class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStatus.Listener {
+class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
     // For nav sidebar
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -214,11 +214,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
         currentZoomLevel = event?.zoomLevel!!
         updateScale()
         return false
-    }
-
-    @Deprecated("This thing is deprecated and it wants a message")
-    override fun onGpsStatusChanged(p0: Int) {
-        TODO("Not yet implemented")
     }
 
     override fun onLocationChanged(p0: Location) {
