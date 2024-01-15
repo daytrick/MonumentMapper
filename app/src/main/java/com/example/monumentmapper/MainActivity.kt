@@ -230,4 +230,22 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
     }
 
+    override fun onRestart() {
+
+        super.onRestart()
+
+        // Turn location tracking back on
+        myLocationOverlay.enableMyLocation()
+        myLocationOverlay.enableFollowLocation()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Turn location tracking back on
+        myLocationOverlay.enableMyLocation()
+        myLocationOverlay.enableFollowLocation()
+    }
+
 }
