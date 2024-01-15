@@ -53,6 +53,9 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     private val defaultZoomLevel = 14.0
     private var currentZoomLevel = defaultZoomLevel
 
+    // For scale
+    lateinit var scaleView: MapScaleView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,6 +93,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
         myMap.mapCenter
         myMap.setMultiTouchControls(true)
         myMap.getLocalVisibleRect(Rect())
+        scaleView = findViewById(R.id.scaleView)
 
         myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), myMap)
         controller = myMap.controller
@@ -121,23 +125,18 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     }
 
 
-    private fun updateScale(latitude: Double) {
 
-        // FOR MAP SCALE
-        // How to load scale from: https://github.com/pengrad/MapScaleView
-        //                    and: https://stackoverflow.com/a/43537667
-        val scaleView: MapScaleView = findViewById(R.id.scaleView)
-        Log.i("SCALE", "Trying to update scale from updateScale()")
-        scaleView.update(currentZoomLevel.toFloat(), latitude)
-
-    }
-
-
+    /**
+     * Resize the map scale to be accurate for the current location and zoom level.
+     *
+     * How to load scale from: https://github.com/pengrad/MapScaleView
+     *                    and: https://stackoverflow.com/a/43537667
+     */
     private fun updateScale() {
 
         myLocationOverlay.runOnFirstFix {
             runOnUiThread {
-                updateScale(myLocationOverlay.myLocation.latitude)
+                scaleView.update(currentZoomLevel.toFloat(), myLocationOverlay.myLocation.latitude)
             }
         }
 
