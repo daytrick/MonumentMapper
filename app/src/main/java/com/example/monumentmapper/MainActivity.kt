@@ -11,18 +11,19 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.monumentmapper.databinding.ActivityMainBinding
+import com.github.pengrad.mapscaleview.MapScaleView
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -33,6 +34,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStatus.Listener {
 
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     private lateinit var locationManager: LocationManager
     private val locationPermissionCode = 2
     private val defaultZoomLevel = 14.0
+    private var currentZoomLevel = defaultZoomLevel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,31 +98,30 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
         myLocationOverlay.enableFollowLocation()
         myLocationOverlay.isDrawAccuracyEnabled = true
 
-        getLocation()
-        controller.setCenter(myLocationOverlay.myLocation)
-        controller.animateTo(myLocationOverlay.myLocation)
-        Log.i("LOC", "My location: ${myLocationOverlay.myLocation}")
-        //Log.i("LOC", "Location manager: ${}")
-
-//        myLocationOverlay.runOnFirstFix {
-//            runOnUiThread {
-//                getLocation()
-//                controller.setCenter(myLocationOverlay.myLocation)
-//                controller.animateTo(myLocationOverlay.myLocation)
-//                Log.i("LOC", "My location: ${myLocationOverlay.myLocation}")
-//            }
-//        }
-        // val mapPoint = GeoPoint(latitude, longitude)
-
         controller.setZoom(defaultZoomLevel)
-
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
-        // controller.animateTo(mapPoint)
-        myMap.overlays.add(myLocationOverlay)
+        myLocationOverlay.runOnFirstFix {
+            runOnUiThread {
 
+                // FOR LOCATION
+                getLocation()
+                controller.setCenter(myLocationOverlay.myLocation)
+                controller.animateTo(myLocationOverlay.myLocation)
+                Log.i("LOC", "My location: ${myLocationOverlay.myLocation}")
+
+                // FOR MAP SCALE
+                // How to load scale from: https://github.com/pengrad/MapScaleView
+                //                    and: https://stackoverflow.com/a/43537667
+                val scaleView: MapScaleView = findViewById(R.id.scaleView)
+                scaleView.update(currentZoomLevel.toFloat(), myLocationOverlay.myLocation.latitude)
+
+            }
+        }
+        myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
+
     }
 
 
@@ -151,7 +153,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
 //            return
 //        }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, this)
-        Log.i("LOC", "Got location!");
+        Log.i("LOC", "Got location!")
     }
 
     /**
@@ -190,9 +192,11 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     override fun onZoom(event: ZoomEvent?): Boolean {
         // Copied from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
         Log.i("LOC", "onZoom zoom level: ${event?.zoomLevel}   source:  ${event?.source}")
+        currentZoomLevel = event?.zoomLevel!!
         return false
     }
 
+    @Deprecated("This thing is deprecated and it wants a message")
     override fun onGpsStatusChanged(p0: Int) {
         TODO("Not yet implemented")
     }
@@ -203,11 +207,11 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener, GpsStat
     }
 
     override fun onPause() {
-        super.onPause();
+        super.onPause()
 
         // Turning off location tracking when not using the app
-        myLocationOverlay.disableMyLocation();
-        myLocationOverlay.disableFollowLocation();
+        myLocationOverlay.disableMyLocation()
+        myLocationOverlay.disableFollowLocation()
 
     }
 
