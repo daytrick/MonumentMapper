@@ -9,7 +9,11 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
+
+        // MAVEN BELONGS HERE!!!
+        // From: https://stackoverflow.com/a/72960966
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
