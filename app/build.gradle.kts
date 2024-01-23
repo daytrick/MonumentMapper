@@ -59,4 +59,11 @@ dependencies {
     // MINE
     // How to import OSM from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
     implementation("org.osmdroid:osmdroid-android:6.1.14")
+
+    // WikiData import values from: https://github.com/Wikidata/Wikidata-Toolkit-Examples/blob/master/pom.xml
+    val wikidataToolkitVersion = "0.14.4"
+    implementation("org.wikidata.wdtk:wdtk-datamodel:${wikidataToolkitVersion}")
+    implementation("org.wikidata.wdtk:wdtk-dumpfiles:${wikidataToolkitVersion}")
+    implementation("org.wikidata.wdtk:wdtk-rtf:${wikidataToolkitVersion}")
+    implementation("org.wikidata.wdtk:wdtk-wikibaseapi:${wikidataToolkitVersion}")
 }
