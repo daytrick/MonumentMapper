@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.monumentmapper"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -37,6 +37,20 @@ android {
         viewBinding = true
     }
 
+    // Fix issues with META-INF/DEPENDENCIES when adding Apache Jena as a dependency: https://github.com/auth0/Auth0.Android/issues/598#issuecomment-1486738419
+    packaging {
+        resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/LICENSE")
+        resources.excludes.add("META-INF/LICENSE.txt")
+        resources.excludes.add("META-INF/license.txt")
+        resources.excludes.add("META-INF/NOTICE")
+        resources.excludes.add("META-INF/NOTICE.txt")
+        resources.excludes.add("META-INF/notice.txt")
+        resources.excludes.add("META-INF/ASL2.0")
+        resources.excludes.add("META-INF/*.kotlin_module")
+    }
+
 }
 
 dependencies {
@@ -59,4 +73,7 @@ dependencies {
     // MINE
     // How to import OSM from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
     implementation("org.osmdroid:osmdroid-android:6.1.14")
+
+    // Apache Jena from: https://jena.apache.org/download/maven.html
+    implementation("org.apache.jena:apache-jena-libs:4.10.0")
 }
