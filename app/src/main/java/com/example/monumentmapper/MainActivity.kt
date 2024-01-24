@@ -21,6 +21,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.monumentmapper.databinding.ActivityMainBinding
+import com.example.monumentmapper.ui.Querier
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -122,6 +123,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
 
+
+        Querier.getLocalMonuments();
     }
 
 

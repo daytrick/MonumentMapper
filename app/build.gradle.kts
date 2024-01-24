@@ -55,7 +55,7 @@ android {
 
 dependencies {
 
-    val nav_version = "2.5.3"   // most recent one won't work with older Android versions
+    val navVersion = "2.5.3"   // most recent one won't work with older Android versions
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -63,8 +63,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
     implementation("com.github.pengrad:mapscaleview:1.6.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -75,5 +75,32 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.14")
 
     // Apache Jena from: https://jena.apache.org/download/maven.html
-    implementation("org.apache.jena:apache-jena-libs:4.10.0")
+    // implementation("org.apache.jena:apache-jena-libs:2.11.0")
+    implementation("mobi.seus.jena:jena-android-arq:2.13.0")
+
+    // Solve NoSuchMethodError: org.apache.http.conn.ssl.SSLConnectionSocketFactory: https://stackoverflow.com/a/38233795
+    //implementation("commons-logging:commons-logging:1.1.1:provided")
+    //org.apache.http.impl.client.HttpClientBuilder
+
+    //implementation("org.apache.http.impl.client:httpclient:4.5.2") {
+//    implementation("org.apache.httpcomponents:httpclient:4.5.2") {
+//        exclude("commons-logging")
+//    }
+
+
+
+
+    //    val kotlinVersion = "1.8.0"
+//    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+//    constraints {
+//        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion") {
+//            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib and to not fail builds due duplicate classes")
+//        }
+//        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion") {
+//            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib and to not fail builds due duplicate classes")
+//        }
+//    }
+
+
+
 }
