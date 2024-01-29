@@ -2,14 +2,31 @@ package com.example.monumentmapper.ui;
 
 
 import android.util.Log;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.sparql.core.Prologue;
+
+import org.apache.jena.atlas.json.JSON;
+import org.apache.jena.atlas.json.JsonObject;
+import org.json.JSONObject;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
 public class Querier {
 
@@ -18,43 +35,62 @@ public class Querier {
      * From: https://stackoverflow.com/questions/36535702/use-jena-to-query-wikidata
      */
     private static final String WD_ENDPOINT = "https://query.wikidata.org/sparql";
-    private static final String WD_PREFIXES =
-            "PREFIX bd: <http://www.bigdata.com/rdf#>\n" +
-            "PREFIX cc: <http://creativecommons.org/ns#>\n" +
-            "PREFIX dct: <http://purl.org/dc/terms/>\n" +
-            "PREFIX geo: <http://www.opengis.net/ont/geosparql#>\n" +
-            "PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>\n" +
-            "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
-            "PREFIX p: <http://www.wikidata.org/prop/>\n" +
-            "PREFIX pq: <http://www.wikidata.org/prop/qualifier/>\n" +
-            "PREFIX pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/>\n" +
-            "PREFIX pqv: <http://www.wikidata.org/prop/qualifier/value/>\n" +
-            "PREFIX pr: <http://www.wikidata.org/prop/reference/>\n" +
-            "PREFIX prn: <http://www.wikidata.org/prop/reference/value-normalized/>\n" +
-            "PREFIX prov: <http://www.w3.org/ns/prov#>\n" +
-            "PREFIX prv: <http://www.wikidata.org/prop/reference/value/>\n" +
-            "PREFIX ps: <http://www.wikidata.org/prop/statement/>\n" +
-            "PREFIX psn: <http://www.wikidata.org/prop/statement/value-normalized/>\n" +
-            "PREFIX psv: <http://www.wikidata.org/prop/statement/value/>\n" +
-            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-            "PREFIX schema: <http://schema.org/>\n" +
-            "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
-            "PREFIX wd: <http://www.wikidata.org/entity/>\n" +
-            "PREFIX wdata: <http://www.wikidata.org/wiki/Special:EntityData/>\n" +
-            "PREFIX wdno: <http://www.wikidata.org/prop/novalue/>\n" +
-            "PREFIX wdref: <http://www.wikidata.org/reference/>\n" +
-            "PREFIX wds: <http://www.wikidata.org/entity/statement/>\n" +
-            "PREFIX wdt: <http://www.wikidata.org/prop/direct/>\n" +
-            "PREFIX wdtn: <http://www.wikidata.org/prop/direct-normalized/>\n" +
-            "PREFIX wdv: <http://www.wikidata.org/value/>\n" +
-            "PREFIX wikibase: <http://wikiba.se/ontology#>\n" +
-            "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>";
+    private static final Prologue WD_PREFIXES = new Prologue();
+    private static final Pattern POINT_REGEX =
+            Pattern.compile("Point[(](?<long>-?[0-9]+.[0-9]+) (?<lat>-?[0-9]+.[0-9]+)[)]");
+    private static MapView mapView;
 
+    public static void init(MapView mapView) {
+
+        // Define the Wikibase prefixes
+        // How to do so from: https://stackoverflow.com/a/32125863
+        WD_PREFIXES.setPrefix("wd", "http://www.wikidata.org/entity/");
+        WD_PREFIXES.setPrefix("wdt", "http://www.wikidata.org/prop/direct/");
+        WD_PREFIXES.setPrefix("p", "http://www.wikidata.org/prop/");
+        WD_PREFIXES.setPrefix("pq", "http://www.wikidata.org/prop/qualifier/");
+        WD_PREFIXES.setPrefix("ps", "http://www.wikidata.org/prop/statement/");
+        WD_PREFIXES.setPrefix("wikibase", "http://wikiba.se/ontology#");
+        WD_PREFIXES.setPrefix("bd", "http://www.bigdata.com/rdf#");
+        WD_PREFIXES.setPrefix("geo", "http://www.w3.org/2003/01/geo/wgs84_pos#");
+        WD_PREFIXES.setPrefix("wd", "http://www.wikidata.org/entity/");
+
+        // Set the map
+        Querier.mapView = mapView;
+
+    }
+
+
+
+    /**
+     * Query Wikidata for local monuments on a new thread,
+     * to avoid the NetworkOnMainThreadException.
+     *
+     * Thread safety tips from: https://android-developers.googleblog.com/2009/05/painless-threading.html
+     * Note to avoid AsyncTask from: https://stackoverflow.com/a/6343299
+     */
     public static void getLocalMonuments() {
 
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                Log.i("MAR", "In a new thread!");
+                queryLocalMonuments();
+
+            }
+
+        }).start();
+
+    }
+
+    /**
+     * Query Wikidata for local monuments.
+     */
+    private static void queryLocalMonuments() {
+
         String queryString =
-                "SELECT DISTINCT ?building ?coords ?image WHERE \n" +
+                "SELECT DISTINCT ?building ?buildingLabel ?coords ?image WHERE \n" +
                 "  {\n" +
                 "    # Accepted buildings from: https://www.wikilovesmonuments.org.uk/eligible-buildings\n" +
                 "    # How to do an OR from: https://stackoverflow.com/a/17600298\n" +
@@ -76,38 +112,118 @@ public class Querier {
                 "  }\n" +
                 "}\n";
 
-//        Query query = QueryFactory.create(WD_PREFIXES + "\n" + queryString);
-//        QueryExecution qExec = QueryExecutionFactory.sparqlService(WD_ENDPOINT, query);
-
-        // Define the Wikibase prefixes
-        // How to do so from: https://stackoverflow.com/a/32125863
-
-        Prologue queryPrologue = new Prologue();
-        queryPrologue.setPrefix("wd", "http://www.wikidata.org/entity/");
-        queryPrologue.setPrefix("wdt", "http://www.wikidata.org/prop/direct/");
-        queryPrologue.setPrefix("p", "http://www.wikidata.org/prop/");
-        queryPrologue.setPrefix("pq", "http://www.wikidata.org/prop/qualifier/");
-        queryPrologue.setPrefix("ps", "http://www.wikidata.org/prop/statement/");
-        queryPrologue.setPrefix("wikibase", "http://wikiba.se/ontology#");
-        queryPrologue.setPrefix("bd", "http://www.bigdata.com/rdf#");
-        queryPrologue.setPrefix("geo", "http://www.w3.org/2003/01/geo/wgs84_pos#");
-        queryPrologue.setPrefix("wd", "http://www.wikidata.org/entity/");
 
         // Make the query, inc. the prefix defs
         // How to make query from: https://stackoverflow.com/questions/36535702/use-jena-to-query-wikidata
         Log.i("MAR", "Going to build query!");
-        Query query = QueryFactory.parse(new Query(queryPrologue), queryString, null, null);
+        Query query = QueryFactory.parse(new Query(WD_PREFIXES), queryString, null, null);
         QueryExecution qExec = QueryExecutionFactory.sparqlService(WD_ENDPOINT, query);
         Log.i("MAR", "Built query!");
 
-
         try {
+            Log.i("MAR", "Trying to select results!");
             ResultSet results = qExec.execSelect();
-            ResultSetFormatter.out(System.out, results, query);
+
+            while (results.hasNext()) {
+
+                QuerySolution qs = results.nextSolution();
+                Log.i("POINT", qs.get("coords").toString());
+                Map<String, Object> monumentData = processMonumentQuery(qs);
+                //addMarker(monumentData);
+
+            }
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+            Log.i("MAR", "Error getting query results: " + ex);
         } finally {
             qExec.close();
         }
     }
+
+
+
+    private static Map processMonumentQuery(QuerySolution qs) {
+
+        Map<String, Object> monumentDict = new HashMap<>();
+
+        // Monument Wikidata ID and name
+//        monumentDict.put("id", qs.get("buildingID"));
+//        monumentDict.put("name", qs.get("buildingLabel"));
+
+        // Monument location
+        Log.i("MAR", "Coords: " + qs.get("coords").toString());
+        Matcher matcher = POINT_REGEX.matcher(qs.get("coords").toString());
+        while (matcher.find()) {
+
+            try {
+                double latitude = Double.parseDouble(matcher.group("lat"));
+                double longitude = Double.parseDouble(matcher.group("long"));
+
+//                monumentDict.put("lat", latitude);
+//                monumentDict.put("long", longitude);
+
+                addMarker(String.valueOf(qs.get("buildingLabel")), latitude, longitude);
+            } catch (NumberFormatException | NullPointerException e) {
+                Log.i("POINT", "Could not extract coordinates");
+            }
+
+        }
+        Log.i("MAR", "Done finding matches!");
+
+        // Monument image
+        monumentDict.put("image", qs.get("image"));
+
+        return monumentDict;
+
+    }
+
+
+    /**
+     * Add a marker to the map using OSMBonus.
+     *
+     * @param name      name of the monument
+     * @param latitude  latitude of the monument
+     * @param longitude longitude of the monument
+     */
+    private static void addMarker(String name, double latitude, double longitude) {
+
+        Marker marker = new Marker(mapView);
+        marker.setPosition(new GeoPoint(latitude, longitude));
+        marker.setTitle(name);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        mapView.getOverlays().add(marker);
+        Log.i("MAR", "Added a point!");
+
+    }
+
+
+    /**
+     * Add a marker to the map using OSMBonus.
+     *
+     * How to do so from: https://stackoverflow.com/a/55707403
+     *
+     * @param monumentData dictionary containing the monument data
+     */
+//    private static void addMarker(Map<String, Object> monumentData) {
+//
+//        // Set up marker
+//        Marker marker = new Marker(mapView);
+//
+//        // Put the data in
+//        try {
+//            double latitude = Double.parseDouble(monumentData.get("lat").toString());
+//            double longitude = Double.parseDouble(monumentData.get("long").toString());
+//            marker.setPosition(new GeoPoint(latitude, longitude));
+//            marker.setTitle(monumentData.get("name").toString());
+//            //marker.snippet = "Description text testing"
+//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+//            mapView.getOverlays().add(marker);
+//            Log.i("MAR", "Added a point!");
+//        }
+//        catch (Exception e) {
+//            Log.i("MAR", e.getMessage().toString());
+//        }
+//
+//    }
 }
