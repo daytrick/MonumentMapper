@@ -24,6 +24,7 @@ import com.example.monumentmapper.ui.Querier
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.hp.hpl.jena.query.ResultSet
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -35,6 +36,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import kotlin.collections.Map as Map1
 
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener {
@@ -125,12 +127,12 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
 
         Log.i("MAR", "Called the Querier!")
-        Querier.init()
+        Querier.init(myMap);
         Querier.getLocalMonuments()
         Log.i("MAR", "Finished calling the Querier!")
 
-        Log.i("MAR", "Trying to add a point!");
-        addMarker(GeoPoint(56.3405, -2.81741))
+//        Log.i("MAR", "Trying to add a point!");
+//        addMarker(GeoPoint(56.3405, -2.81741))
 
     }
 
@@ -140,17 +142,41 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
      *
      * How to do so from: https://stackoverflow.com/a/55707403
      */
-    public fun addMarker(point: GeoPoint) {
+//    private fun addMarker(point: GeoPoint) {
+//
+//        var marker: Marker = Marker(myMap);
+//        marker.position = point;
+//        marker.title = "Test";
+//        marker.snippet = "Description text testing"
+//        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+//        myMap.overlays.add(marker)
+//        Log.i("MAR", "Added a point!")
+//
+//    }
 
-        var marker: Marker = Marker(myMap);
-        marker.position = point;
-        marker.title = "Test";
-        marker.snippet = "Description text testing"
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        myMap.overlays.add(marker)
-        Log.i("MAR", "Added a point!")
 
-    }
+
+//    public fun addMarker(monumentData: Map1<String, Object>) {
+//
+//        // Set up marker
+//        var marker: Marker = Marker(myMap);
+//
+//        // Put the data in
+//        try {
+//            val latitude: Double = monumentData["lat"].toString().toDouble();
+//            val longitude: Double = monumentData["long"].toString().toDouble();
+//            marker.position = GeoPoint(latitude, longitude);
+//            marker.title = monumentData.get("name").toString();
+//            //marker.snippet = "Description text testing"
+//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+//            myMap.overlays.add(marker)
+//            Log.i("MAR", "Added a point!")
+//        }
+//        catch (e: Exception) {
+//            Log.i("MAR", e.message.toString());
+//        }
+//
+//    }
 
 
 
