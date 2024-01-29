@@ -2,14 +2,23 @@ package com.example.monumentmapper.ui;
 
 
 import android.util.Log;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.sparql.core.Prologue;
+
+import org.apache.jena.atlas.json.JSON;
+import org.apache.jena.atlas.json.JsonObject;
+import org.json.JSONObject;
 
 public class Querier {
 
@@ -66,7 +75,7 @@ public class Querier {
     private static void queryLocalMonuments() {
 
         String queryString =
-                "SELECT DISTINCT ?building ?coords ?image WHERE \n" +
+                "SELECT DISTINCT ?building ?buildingLabel ?coords ?image WHERE \n" +
                 "  {\n" +
                 "    # Accepted buildings from: https://www.wikilovesmonuments.org.uk/eligible-buildings\n" +
                 "    # How to do an OR from: https://stackoverflow.com/a/17600298\n" +
@@ -101,7 +110,18 @@ public class Querier {
             Log.i("MAR", "Trying to select results!");
             ResultSet results = qExec.execSelect();
             Log.i("MAR", "Printing results now!");
-            ResultSetFormatter.out(System.out, results, query);
+
+            while (results.hasNext()) {
+
+                QuerySolution monument = results.nextSolution();
+                Log.i("POINT", monument.get("coords").toString());
+
+            }
+
+            //ResultSetFormatter.out(System.out, results, query);
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            ResultSetFormatter.outputAsJSON(baos, results);
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             Log.i("MAR", "Error getting query results: " + ex);

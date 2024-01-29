@@ -91,6 +91,8 @@ dependencies {
     // MINE
     // How to import OSM from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
     implementation("org.osmdroid:osmdroid-android:6.1.14")
+    // OSMBonus for the markers: https://github.com/MKergall/osmbonuspack/wiki/HowToInclude
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
 
     // Apache Jena from: https://jena.apache.org/download/maven.html
     // implementation("org.apache.jena:apache-jena-libs:2.11.0")

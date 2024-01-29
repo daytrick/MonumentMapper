@@ -3,7 +3,6 @@ package com.example.monumentmapper
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Rect
-import android.location.GpsStatus
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -33,6 +32,7 @@ import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
@@ -128,7 +128,31 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Querier.init()
         Querier.getLocalMonuments()
         Log.i("MAR", "Finished calling the Querier!")
+
+        Log.i("MAR", "Trying to add a point!");
+        addMarker(GeoPoint(56.3405, -2.81741))
+
     }
+
+
+    /**
+     * Add a marker to the map using OSMBonus.
+     *
+     * How to do so from: https://stackoverflow.com/a/55707403
+     */
+    public fun addMarker(point: GeoPoint) {
+
+        var marker: Marker = Marker(myMap);
+        marker.position = point;
+        marker.title = "Test";
+        marker.snippet = "Description text testing"
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        myMap.overlays.add(marker)
+        Log.i("MAR", "Added a point!")
+
+    }
+
+
 
 
 
