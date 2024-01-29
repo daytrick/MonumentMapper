@@ -124,7 +124,9 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         myMap.addMapListener(this)
 
 
+        Log.i("MAR", "Called the Querier!")
         Querier.getLocalMonuments()
+        Log.i("MAR", "Finished calling the Querier!")
     }
 
 

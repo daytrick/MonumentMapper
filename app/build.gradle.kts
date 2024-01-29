@@ -96,8 +96,6 @@ dependencies {
     // implementation("org.apache.jena:apache-jena-libs:2.11.0")
     implementation("mobi.seus.jena:jena-android-arq:2.13.0") {
 
-        //exclude("com.hp.hpl.jena.Jena")
-
         // Duplicate class com.hp.hpl.jena.Jena
         // found in modules jetified-jena-android-core-2.13.0 (mobi.seus.jena:jena-android-core:2.13.0)
         // and jetified-jena-core-2.13.0 (org.apache.jena:jena-core:2.13.0)

@@ -51,7 +51,34 @@ public class Querier {
             "PREFIX wikibase: <http://wikiba.se/ontology#>\n" +
             "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>";
 
+
+    /**
+     * Query Wikidata for local monuments on a new thread,
+     * to avoid the NetworkOnMainThreadException.
+     *
+     * Thread safety tips from: https://android-developers.googleblog.com/2009/05/painless-threading.html
+     * Note to avoid AsyncTask from: https://stackoverflow.com/a/6343299
+     */
     public static void getLocalMonuments() {
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                Log.i("MAR", "In a new thread!");
+                queryLocalMonuments();
+
+            }
+
+        }).start();
+
+    }
+
+    /**
+     * Query Wikidata for local monuments.
+     */
+    private static void queryLocalMonuments() {
 
         String queryString =
                 "SELECT DISTINCT ?building ?coords ?image WHERE \n" +
@@ -102,10 +129,13 @@ public class Querier {
 
 
         try {
+            Log.i("MAR", "Trying to select results!");
             ResultSet results = qExec.execSelect();
+            Log.i("MAR", "Printing results now!");
             ResultSetFormatter.out(System.out, results, query);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+            Log.i("MAR", "Error getting query results: " + ex);
         } finally {
             qExec.close();
         }
