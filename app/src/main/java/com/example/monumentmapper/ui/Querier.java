@@ -17,7 +17,7 @@ public class Querier {
      * WikiData SPARQL endpoint URL.
      * From: https://stackoverflow.com/questions/36535702/use-jena-to-query-wikidata
      */
-    private static String WD_ENDPOINT = "https://query.wikidata.org/sparql";
+    private static final String WD_ENDPOINT = "https://query.wikidata.org/sparql";
     private static final String WD_PREFIXES =
             "PREFIX bd: <http://www.bigdata.com/rdf#>\n" +
             "PREFIX cc: <http://creativecommons.org/ns#>\n" +
