@@ -36,6 +36,8 @@ public class Querier {
      */
     private static final String WD_ENDPOINT = "https://query.wikidata.org/sparql";
     private static final Prologue WD_PREFIXES = new Prologue();
+    private static final Pattern NAME_REGEX =
+            Pattern.compile("^(?<name>.+)@[a-z]+$");
     private static final Pattern POINT_REGEX =
             Pattern.compile("Point[(](?<long>-?[0-9]+.[0-9]+) (?<lat>-?[0-9]+.[0-9]+)[)]");
     private static MapView mapView;
@@ -142,28 +144,30 @@ public class Querier {
     }
 
 
-
+    /**
+     * Process a single query solution (result)
+     * for the query for getting local monuments.
+     *
+     * @param qs the query solution
+     * @return
+     */
     private static Map processMonumentQuery(QuerySolution qs) {
 
         Map<String, Object> monumentDict = new HashMap<>();
 
-        // Monument Wikidata ID and name
-//        monumentDict.put("id", qs.get("buildingID"));
-//        monumentDict.put("name", qs.get("buildingLabel"));
-
-        // Monument location
-        Log.i("MAR", "Coords: " + qs.get("coords").toString());
-        Matcher matcher = POINT_REGEX.matcher(qs.get("coords").toString());
-        while (matcher.find()) {
+        // Extract monument name & location
+        Matcher nameMatcher = NAME_REGEX.matcher(qs.get("buildingLabel").toString());
+        Matcher locMatcher = POINT_REGEX.matcher(qs.get("coords").toString());
+        while (nameMatcher.find() && locMatcher.find()) {
 
             try {
-                double latitude = Double.parseDouble(matcher.group("lat"));
-                double longitude = Double.parseDouble(matcher.group("long"));
 
-//                monumentDict.put("lat", latitude);
-//                monumentDict.put("long", longitude);
+                String name = nameMatcher.group("name");
+                double latitude = Double.parseDouble(locMatcher.group("lat"));
+                double longitude = Double.parseDouble(locMatcher.group("long"));
 
-                addMarker(String.valueOf(qs.get("buildingLabel")), latitude, longitude);
+                addMarker(name, latitude, longitude);
+
             } catch (NumberFormatException | NullPointerException e) {
                 Log.i("POINT", "Could not extract coordinates");
             }
