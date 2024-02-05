@@ -24,7 +24,6 @@ import com.example.monumentmapper.ui.Querier
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.hp.hpl.jena.query.ResultSet
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -33,10 +32,8 @@ import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import kotlin.collections.Map as Map1
 
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener {
@@ -52,9 +49,11 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     lateinit var myLocationOverlay: MyLocationNewOverlay
     // From: https://medium.com/@hasperong/get-current-location-with-latitude-and-longtitude-using-kotlin-2ef6c94c7b76
     private lateinit var locationManager: LocationManager
-    private val locationPermissionCode = 2
-    private val defaultZoomLevel = 14.0
-    private var currentZoomLevel = defaultZoomLevel
+    private val LOCATION_PERMISSION_CODE = 2
+    private val DEFAULT_ZOOM_LEVEL = 14.0
+    private var currentZoomLevel = DEFAULT_ZOOM_LEVEL
+    private val MIN_ZOOM_LEVEL = 3.0
+    private val MAX_ZOOM_LEVEL = 20.0
 
     // For scale
     lateinit var scaleView: MapScaleView
@@ -93,6 +92,18 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         )
         myMap = binding.osmmap.osmmap
         myMap.setTileSource(TileSourceFactory.MAPNIK)
+
+        // Limit zoom levels so can't have weird parallel world tiles
+        // Zoom level limit names from: https://code.google.com/archive/p/osmdroid/issues/418
+        Log.i("SCROLL", "Gonna limit scroll")
+        myMap.maxZoomLevel = MAX_ZOOM_LEVEL
+        myMap.minZoomLevel = MIN_ZOOM_LEVEL
+        myMap.setScrollableAreaLimitLatitude(
+            MapView.getTileSystem().maxLatitude,
+            MapView.getTileSystem().minLatitude,
+            0);
+
+        // Centre map view
         myMap.mapCenter
         myMap.setMultiTouchControls(true)
         myMap.getLocalVisibleRect(Rect())
@@ -105,7 +116,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         myLocationOverlay.enableFollowLocation()
         myLocationOverlay.isDrawAccuracyEnabled = true
 
-        controller.setZoom(defaultZoomLevel)
+        controller.setZoom(DEFAULT_ZOOM_LEVEL)
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
@@ -125,14 +136,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
 
-
-        Log.i("MAR", "Called the Querier!")
         Querier.init(myMap);
         Querier.getLocalMonuments()
-        Log.i("MAR", "Finished calling the Querier!")
-
-//        Log.i("MAR", "Trying to add a point!");
-//        addMarker(GeoPoint(56.3405, -2.81741))
 
     }
 
@@ -207,7 +212,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     private fun getLocation() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionCode)
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_CODE)
         }
 //        if (ActivityCompat.checkSelfPermission(
 //                this,
@@ -235,7 +240,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
      */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == locationPermissionCode) {
+        if (requestCode == LOCATION_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
             }
