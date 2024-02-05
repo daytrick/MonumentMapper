@@ -1,8 +1,18 @@
 package com.example.monumentmapper.ui;
 
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -40,6 +50,10 @@ public class Querier {
             Pattern.compile("^(?<name>.+)@[a-z]+$");
     private static final Pattern POINT_REGEX =
             Pattern.compile("Point[(](?<long>-?[0-9]+.[0-9]+) (?<lat>-?[0-9]+.[0-9]+)[)]");
+    /**
+     * Max wait time in milliseconds for an image-loading thread to complete.
+     */
+    private static final long WAIT_TIME = 500;
     private static MapView mapView;
 
     public static void init(MapView mapView) {
@@ -130,7 +144,7 @@ public class Querier {
 
                 QuerySolution qs = results.nextSolution();
                 Log.i("POINT", qs.get("coords").toString());
-                Map<String, Object> monumentData = processMonumentQuery(qs);
+                processMonumentQuery(qs);
                 //addMarker(monumentData);
 
             }
@@ -151,13 +165,12 @@ public class Querier {
      * @param qs the query solution
      * @return
      */
-    private static Map processMonumentQuery(QuerySolution qs) {
+    private static void processMonumentQuery(QuerySolution qs) {
 
-        Map<String, Object> monumentDict = new HashMap<>();
-
-        // Extract monument name & location
+        // Extract monument name and location
         Matcher nameMatcher = NAME_REGEX.matcher(qs.get("buildingLabel").toString());
         Matcher locMatcher = POINT_REGEX.matcher(qs.get("coords").toString());
+
         while (nameMatcher.find() && locMatcher.find()) {
 
             try {
@@ -165,8 +178,14 @@ public class Querier {
                 String name = nameMatcher.group("name");
                 double latitude = Double.parseDouble(locMatcher.group("lat"));
                 double longitude = Double.parseDouble(locMatcher.group("long"));
+                String imageURL = null;
+                if (qs.contains("image")) {
+                    imageURL = qs.get("image").toString();
+                    Log.i("IMAGE", qs.get("image").toString());
+                }
+                Log.i("IMAGE", imageURL);
 
-                addMarker(name, latitude, longitude);
+                addMarker(name, latitude, longitude, imageURL);
 
             } catch (NumberFormatException | NullPointerException e) {
                 Log.i("POINT", "Could not extract coordinates");
@@ -174,30 +193,6 @@ public class Querier {
 
         }
         Log.i("MAR", "Done finding matches!");
-
-        // Monument image
-        monumentDict.put("image", qs.get("image"));
-
-        return monumentDict;
-
-    }
-
-
-    /**
-     * Add a marker to the map using OSMBonus.
-     *
-     * @param name      name of the monument
-     * @param latitude  latitude of the monument
-     * @param longitude longitude of the monument
-     */
-    private static void addMarker(String name, double latitude, double longitude) {
-
-        Marker marker = new Marker(mapView);
-        marker.setPosition(new GeoPoint(latitude, longitude));
-        marker.setTitle(name);
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        mapView.getOverlays().add(marker);
-        Log.i("MAR", "Added a point!");
 
     }
 
@@ -207,27 +202,149 @@ public class Querier {
      *
      * How to do so from: https://stackoverflow.com/a/55707403
      *
-     * @param monumentData dictionary containing the monument data
+     * @param name      name of the monument
+     * @param latitude  latitude of the monument
+     * @param longitude longitude of the monument
      */
-//    private static void addMarker(Map<String, Object> monumentData) {
+    private static void addMarker(String name, double latitude, double longitude, String imageURL) {
+
+        // Create marker
+        Marker marker = new Marker(mapView);
+
+        // Set position and name
+        marker.setPosition(new GeoPoint(latitude, longitude));
+        marker.setTitle(name);
+
+        // Allow image to be loaded upon clicking, if URL is provided
+        if (imageURL != null) {
+            marker.setOnMarkerClickListener(loadMonumentImage(imageURL));
+        }
+
+        // Actually add the marker
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        mapView.getOverlays().add(marker);
+        Log.i("MAR", "Added a point!");
+
+    }
+
+
+    /**
+     * Custom Marker.OnMarkerClickListener for loading the image only when requested,
+     * so that there aren't potentially thousands of images being requested and loaded unnecessarily.
+     *
+     * How to set custom listener from: https://stackoverflow.com/q/47167058
+     *
+     * @param imageURL  the image's URL
+     * @return          the listener
+     */
+    private static Marker.OnMarkerClickListener loadMonumentImage(String imageURL) {
+
+        return new Marker.OnMarkerClickListener() {
+
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+
+                Log.i("TAP", "Tapped " + marker.getTitle());
+
+                // Toggle display
+                if (!marker.isInfoWindowOpen()) {
+                    marker.showInfoWindow();
+                }
+                else {
+                    marker.getInfoWindow().close();
+                }
+
+
+                // Only get the image if it hasn't already been loaded
+                if (marker.getImage() == null && imageURL != null) {
+
+                    // Use a new Thread to avoid networking on the main thread
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+
+                                    Drawable image = getDrawableFromURL(imageURL);
+                                    marker.setImage(image);
+                                    Log.i("TAP", "Displaying image for " + marker.getTitle());
+
+                            }
+                            catch (IOException e) {
+                                Log.i("TAP", "Couldn't get image: " + e.getMessage());
+                            }
+                        }
+                    });
+
+                    // Run the thread
+                    thread.start();
+
+//                    // Wait for the req to go through
+//                    try {
 //
-//        // Set up marker
-//        Marker marker = new Marker(mapView);
+//                        thread.join(WAIT_TIME);
 //
-//        // Put the data in
-//        try {
-//            double latitude = Double.parseDouble(monumentData.get("lat").toString());
-//            double longitude = Double.parseDouble(monumentData.get("long").toString());
-//            marker.setPosition(new GeoPoint(latitude, longitude));
-//            marker.setTitle(monumentData.get("name").toString());
-//            //marker.snippet = "Description text testing"
-//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//            mapView.getOverlays().add(marker);
-//            Log.i("MAR", "Added a point!");
-//        }
-//        catch (Exception e) {
-//            Log.i("MAR", e.getMessage().toString());
-//        }
+//                        // Reload the marker if user is still looking at it
+//                        if (marker.isInfoWindowOpen()) {
+//                            marker.showInfoWindow();
+//                        }
 //
-//    }
+//                    } catch (InterruptedException e) {
+//                        Log.i("TAP", "Interrupted");
+//                        // Doesn't really matter - just won't see the image
+//                        // throw new RuntimeException(e);
+//                    }
+
+                }
+                else {
+                    Log.i("TAP", "Marker already has an image: " + marker.getImage().toString());
+                    Log.i("TAP", String.valueOf(marker.isInfoWindowOpen()));
+                }
+
+                return false;
+
+            }
+
+        };
+
+    }
+
+
+    /**
+     * Get a Drawable (image) from a URL.
+     *
+     * How to do so from: https://stackoverflow.com/a/9490060
+     *
+     * @param url   the URL
+     * @return      the Drawable
+     * @throws IOException
+     */
+    private static Drawable getDrawableFromURL(String url) throws IOException {
+
+        url = secureURL(url);
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.connect();
+
+        InputStream input = conn.getInputStream();
+        Bitmap image = BitmapFactory.decodeStream(input);
+
+        return new BitmapDrawable(Resources.getSystem(), image);
+
+    }
+
+
+    /**
+     * Change insecure (cleartext) HTTP URLs to secure HTTPS URLs,
+     * because my permissions aren't set to allow cleartext ones.
+     *
+     * Explanation from: https://stackoverflow.com/a/50834600
+     *
+     * @param url   the insecure URL
+     * @return      the secure URL
+     */
+    private static String secureURL(String url) {
+
+        return url.replace("http://", "https://");
+
+    }
+
 }
