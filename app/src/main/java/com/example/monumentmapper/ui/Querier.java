@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -84,7 +85,7 @@ public class Querier {
      * Thread safety tips from: https://android-developers.googleblog.com/2009/05/painless-threading.html
      * Note to avoid AsyncTask from: https://stackoverflow.com/a/6343299
      */
-    public static void getLocalMonuments() {
+    public static void getLocalMonuments(double longitude, double latitude) {
 
         new Thread(new Runnable() {
 
@@ -92,7 +93,7 @@ public class Querier {
             public void run() {
 
                 Log.i("MAR", "In a new thread!");
-                queryLocalMonuments();
+                queryLocalMonuments(longitude, latitude);
 
             }
 
@@ -103,7 +104,7 @@ public class Querier {
     /**
      * Query Wikidata for local monuments.
      */
-    private static void queryLocalMonuments() {
+    private static void queryLocalMonuments(double longitude, double latitude) {
 
         String queryString =
                 "SELECT DISTINCT ?building ?buildingLabel ?coords ?image WHERE \n" +
@@ -119,7 +120,7 @@ public class Querier {
                 "  SERVICE wikibase:around {\n" +
                 "    ?building wdt:P625 ?coords .\n" +
                 "    # How to pass a specific location in from: https://stackoverflow.com/a/49315478\n" +
-                "    bd:serviceParam wikibase:center \"Point(-2.8175 56.3406)\"^^geo:wktLiteral .\n" +
+                "    bd:serviceParam wikibase:center \"Point(" + longitude + " " + latitude + ")\"^^geo:wktLiteral .\n" +
                 "    bd:serviceParam wikibase:radius \"2\" .\n" +
                 "  }\n" +
                 "\n" +
@@ -133,6 +134,14 @@ public class Querier {
         // How to make query from: https://stackoverflow.com/questions/36535702/use-jena-to-query-wikidata
         Log.i("MAR", "Going to build query!");
         Query query = QueryFactory.parse(new Query(WD_PREFIXES), queryString, null, null);
+
+//        ParameterizedSparqlString pss = new ParameterizedSparqlString(queryString);
+//        pss.setNsPrefixes(WD_PREFIXES.getPrefixMapping());
+//        pss.setLiteral("long", longitude);
+//        pss.setLiteral("lat", latitude);
+//        Log.i("QUERY", pss.toString());
+//        Query query = pss.asQuery();
+
         QueryExecution qExec = QueryExecutionFactory.sparqlService(WD_ENDPOINT, query);
         Log.i("MAR", "Built query!");
 

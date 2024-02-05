@@ -120,6 +120,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
+        Querier.init(myMap);
+
         myLocationOverlay.runOnFirstFix {
             runOnUiThread {
 
@@ -131,59 +133,15 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
                 updateScale()
 
+                Log.i("POINT", myLocationOverlay.myLocation.toString());
+                Querier.getLocalMonuments(myLocationOverlay.myLocation.longitude, myLocationOverlay.myLocation.latitude)
+
             }
         }
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
 
-        Querier.init(myMap);
-        Querier.getLocalMonuments()
-
     }
-
-
-    /**
-     * Add a marker to the map using OSMBonus.
-     *
-     * How to do so from: https://stackoverflow.com/a/55707403
-     */
-//    private fun addMarker(point: GeoPoint) {
-//
-//        var marker: Marker = Marker(myMap);
-//        marker.position = point;
-//        marker.title = "Test";
-//        marker.snippet = "Description text testing"
-//        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//        myMap.overlays.add(marker)
-//        Log.i("MAR", "Added a point!")
-//
-//    }
-
-
-
-//    public fun addMarker(monumentData: Map1<String, Object>) {
-//
-//        // Set up marker
-//        var marker: Marker = Marker(myMap);
-//
-//        // Put the data in
-//        try {
-//            val latitude: Double = monumentData["lat"].toString().toDouble();
-//            val longitude: Double = monumentData["long"].toString().toDouble();
-//            marker.position = GeoPoint(latitude, longitude);
-//            marker.title = monumentData.get("name").toString();
-//            //marker.snippet = "Description text testing"
-//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//            myMap.overlays.add(marker)
-//            Log.i("MAR", "Added a point!")
-//        }
-//        catch (e: Exception) {
-//            Log.i("MAR", e.message.toString());
-//        }
-//
-//    }
-
-
 
 
 
