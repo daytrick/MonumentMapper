@@ -291,4 +291,14 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
     }
 
+    override fun onResume() {
+
+        super.onResume()
+
+        // Re-enable location tracking
+        myLocationOverlay.enableMyLocation()
+        myLocationOverlay.enableFollowLocation()
+
+    }
+
 }
