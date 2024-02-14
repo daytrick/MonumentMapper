@@ -9,6 +9,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -212,6 +213,29 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         return true
+    }
+
+    /**
+     * For selecting a menu item in the nav bar.
+     *
+     * Documentation: https://developer.android.com/develop/ui/views/components/appbar/actions#handle-actions
+     */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return when (item.itemId) {
+
+            // Clicked on account
+            R.id.nav_account -> {
+                // Show login page
+                return true;
+            }
+
+            // DK
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
