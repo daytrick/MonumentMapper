@@ -211,14 +211,13 @@ public class Querier {
                 String name = nameMatcher.group("name");
                 double latitude = Double.parseDouble(locMatcher.group("lat"));
                 double longitude = Double.parseDouble(locMatcher.group("long"));
-                String imageURL = null;
                 if (qs.contains("image")) {
-                    imageURL = qs.get("image").toString();
-                    Log.i("IMAGE", qs.get("image").toString());
+                    String imageURL = qs.get("image").toString();
+                    addMarker(name, latitude, longitude, imageURL);
                 }
-                Log.i("IMAGE", imageURL);
-
-                addMarker(name, latitude, longitude, imageURL);
+                else {
+                    addMarker(name, latitude, longitude, null);
+                }
 
             } catch (NumberFormatException | NullPointerException e) {
                 Log.i("POINT", "Could not extract coordinates");
@@ -253,8 +252,11 @@ public class Querier {
         if (imageURL != null) {
             marker.setOnMarkerClickListener(loadMonumentImage(imageURL));
             marker.setIcon(photoful);
-        } else {
+            Log.i("ICON", "photoful: " + imageURL);
+        }
+        else {
             marker.setIcon(photoless);
+            Log.i("ICON", "photoless: " + imageURL);
         }
 
         // Actually add the marker
