@@ -1,12 +1,16 @@
 package com.example.monumentmapper.ui;
 
-
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.util.Log;
+
+import androidx.core.content.res.ResourcesCompat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +25,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
+import com.example.monumentmapper.R;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -55,7 +62,24 @@ public class Querier {
      * Max wait time in milliseconds for an image-loading thread to complete.
      */
     private static final long WAIT_TIME = 500;
+
+    private static Drawable photoful;
+    private static Drawable photoless;
     private static MapView mapView;
+
+    /**
+     * Pass the Drawables for marker icons in.
+     *
+     * Best practice for accessing Resources from a non-activity class from:
+     * https://stackoverflow.com/questions/7666589/using-getresources-in-non-activity-class
+     *
+     * @param photoful      Drawable of the marker for if there is a photo
+     * @param photoless     Drawable of the marker for if there isn't a photo
+     */
+    public static void setMarkerIcons(Drawable photoful, Drawable photoless) {
+        Querier.photoful = photoful;
+        Querier.photoless = photoless;
+    }
 
     public static void init(MapView mapView) {
 
@@ -224,9 +248,13 @@ public class Querier {
         marker.setPosition(new GeoPoint(latitude, longitude));
         marker.setTitle(name);
 
-        // Allow image to be loaded upon clicking, if URL is provided
+        // Set marker image and allow image to be loaded upon clicking, if URL is provided
+        // How to set marker icon from: https://stackoverflow.com/q/60301641
         if (imageURL != null) {
             marker.setOnMarkerClickListener(loadMonumentImage(imageURL));
+            marker.setIcon(photoful);
+        } else {
+            marker.setIcon(photoless);
         }
 
         // Actually add the marker

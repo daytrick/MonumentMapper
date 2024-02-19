@@ -13,12 +13,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.caverock.androidsvg.SVG
+import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
 import com.example.monumentmapper.ui.Querier
 import com.github.pengrad.mapscaleview.MapScaleView
@@ -101,7 +105,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         myMap.setScrollableAreaLimitLatitude(
             MapView.getTileSystem().maxLatitude,
             MapView.getTileSystem().minLatitude,
-            0);
+            0)
 
         // Centre map view
         myMap.mapCenter
@@ -120,7 +124,18 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
-        Querier.init(myMap);
+        try {
+            val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null);
+            val photoless = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoless, null);
+//            val photoful = SVG.getFromResource(resources, R.drawable.marker_photoful)
+//            val photoless = SVG.getFromResource(resources, R.drawable.marker_photoless)
+            Querier.setMarkerIcons(photoful, photoless)
+        }
+        catch (e: SVGParseException) {
+            Log.i("ICON", "Couldn't parse SVGs: " + e.toString())
+        }
+
+        Querier.init(myMap)
 
         myLocationOverlay.runOnFirstFix {
             runOnUiThread {
@@ -133,7 +148,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
                 updateScale()
 
-                Log.i("POINT", myLocationOverlay.myLocation.toString());
+                Log.i("POINT", myLocationOverlay.myLocation.toString())
                 Querier.getLocalMonuments(myLocationOverlay.myLocation.longitude, myLocationOverlay.myLocation.latitude)
 
             }
