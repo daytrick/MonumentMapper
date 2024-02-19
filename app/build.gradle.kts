@@ -93,6 +93,8 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.14")
     // OSMBonus for the markers: https://github.com/MKergall/osmbonuspack/wiki/HowToInclude
     implementation("com.github.MKergall:osmbonuspack:6.9.0")
+    // SVG loading: https://github.com/osmdroid/osmdroid/issues/1393#issuecomment-527144698
+    implementation("com.caverock:androidsvg:1.4")
 
     // Apache Jena from: https://jena.apache.org/download/maven.html
     // implementation("org.apache.jena:apache-jena-libs:2.11.0")
