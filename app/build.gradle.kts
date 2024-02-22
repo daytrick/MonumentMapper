@@ -73,6 +73,7 @@ repositories {
 
 dependencies {
 
+    implementation("androidx.annotation:annotation:1.7.1")
     val navVersion = "2.5.3"   // most recent one won't work with older Android versions
 
     implementation("androidx.core:core-ktx:1.9.0")

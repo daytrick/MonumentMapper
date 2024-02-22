@@ -1,6 +1,7 @@
 package com.example.monumentmapper
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.location.Location
@@ -9,8 +10,10 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -25,6 +28,7 @@ import com.caverock.androidsvg.SVG
 import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
 import com.example.monumentmapper.ui.Querier
+import com.example.monumentmapper.ui.login.LoginActivity
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -74,7 +78,14 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         binding.appBarMain.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+            Log.i("MENU_CLICK", "onClickListener activated")
         }
+
+        binding.appBarMain.toolbar.setOnMenuItemClickListener(Toolbar.OnMenuItemClickListener() {
+            Log.i("MENU_CLICK", "In the binding")
+            menuClickListener(it)
+        })
+
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -82,7 +93,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_account
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -99,7 +110,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
         // Limit zoom levels so can't have weird parallel world tiles
         // Zoom level limit names from: https://code.google.com/archive/p/osmdroid/issues/418
-        Log.i("SCROLL", "Gonna limit scroll")
         myMap.maxZoomLevel = MAX_ZOOM_LEVEL
         myMap.minZoomLevel = MIN_ZOOM_LEVEL
         myMap.setScrollableAreaLimitLatitude(
@@ -224,9 +234,54 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        Log.i("MENU_CREATE", "Created options menu!")
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
-        return true
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    /**
+     * For selecting a menu item in the nav bar.
+     *
+     * Documentation: https://developer.android.com/develop/ui/views/components/appbar/actions#handle-actions
+     */
+    fun menuClickListener(item: MenuItem): Boolean {
+
+        Log.i("MENU_CLICK", "Detected a click!")
+
+        if (item.itemId == R.id.nav_account) {
+            // Show login page
+            val intent = Intent(this, LoginActivity::class.java)
+            Log.i("MENU_CLICK", "Showing login page!")
+            startActivity(intent);
+            return true;
+        }
+        else {
+            Log.i("MENU_CLICK", "Something else selected!")
+            super.onOptionsItemSelected(item)
+            return false;
+        }
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+
+        // Clicked on account
+        R.id.nav_account -> {
+            // Show login page
+            val intent = Intent(this, LoginActivity::class.java)
+            Log.i("MENU_CLICK", "Showing login page!")
+            startActivity(intent)
+            true;
+        }
+
+        // DK
+        else -> {
+            Log.i("MENU_CLICK", "Something else selected!")
+            super.onOptionsItemSelected(item)
+        }
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
