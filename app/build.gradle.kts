@@ -94,13 +94,13 @@ dependencies {
 
     ////////// CAMERA //////////
     // Dependency instructions from: https://www.youtube.com/watch?v=XUN6mUQiDpg
-    val camerax_version = "1.3.1"
+    val camerax_version = "1.2.0"
     implementation("androidx.camera:camera-core:${camerax_version}")
     implementation("androidx.camera:camera-camera2:${camerax_version}")
     implementation("androidx.camera:camera-view:${camerax_version}")
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
 
     ////////// MAP //////////
     // How to import OSM from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
