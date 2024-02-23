@@ -35,7 +35,7 @@ class CameraActivity : AppCompatActivity() {
         }
         else {
             // Start the camera
-            // startCamera()
+            startCamera()
         }
     }
 
@@ -65,7 +65,7 @@ class CameraActivity : AppCompatActivity() {
                     var permissionGranted = true
 
                     permissions.entries.forEach {
-                        if (it.key in REQUIRED_PERMISSIONS && it.value == false) {
+                        if (it.key in REQUIRED_PERMISSIONS && !it.value) {
                             permissionGranted = false
                         }
                     }
@@ -75,6 +75,7 @@ class CameraActivity : AppCompatActivity() {
                 }
                 else {
                     // Can start the camera
+                    startCamera()
                 }
             }
 
