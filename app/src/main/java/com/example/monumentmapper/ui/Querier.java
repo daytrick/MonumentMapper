@@ -242,6 +242,7 @@ public class Querier {
 
         // Create marker
         Marker marker = new Marker(mapView);
+        marker.setInfoWindow(new CustomInfoWindow(mapView));
 
         // Set position and name
         marker.setPosition(new GeoPoint(latitude, longitude));
