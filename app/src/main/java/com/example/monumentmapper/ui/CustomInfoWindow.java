@@ -17,6 +17,7 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
  */
 public class CustomInfoWindow extends MarkerInfoWindow {
 
+    public static final String NAME_KEY = "nameKey";
     private final Button cameraButton;
 
     /**
@@ -24,19 +25,17 @@ public class CustomInfoWindow extends MarkerInfoWindow {
      *
      * @param mapView the map the info window's marker is on
      */
-    public CustomInfoWindow(MapView mapView) {
+    public CustomInfoWindow(MapView mapView, String monumentName) {
 
         super(R.layout.bonuspack_bubble_custom, mapView);
         this.cameraButton = (Button) mView.findViewById(R.id.bubble_camera_button);
 
         // Add onClickListener to camera button
         // How to do so from: https://stackoverflow.com/a/41389737
-        this.cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), CameraActivity.class);
-                view.getContext().startActivity(intent);
-            }
+        this.cameraButton.setOnClickListener(view -> {
+            Intent intent = new Intent(view.getContext(), CameraActivity.class);
+            intent.putExtra(NAME_KEY, monumentName);
+            view.getContext().startActivity(intent);
         });
     }
 //
