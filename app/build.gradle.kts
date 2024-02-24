@@ -27,6 +27,7 @@ android {
         }
     }
     compileOptions {
+        // Need at least Java 8 for camera
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -90,6 +91,18 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // MINE
+
+    ////////// CAMERA //////////
+    // Dependency instructions from: https://www.youtube.com/watch?v=XUN6mUQiDpg
+    val camerax_version = "1.2.0"
+    implementation("androidx.camera:camera-core:${camerax_version}")
+    implementation("androidx.camera:camera-camera2:${camerax_version}")
+    implementation("androidx.camera:camera-view:${camerax_version}")
+    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
+
+    ////////// MAP //////////
     // How to import OSM from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
     implementation("org.osmdroid:osmdroid-android:6.1.14")
     // OSMBonus for the markers: https://github.com/MKergall/osmbonuspack/wiki/HowToInclude
@@ -97,6 +110,7 @@ dependencies {
     // SVG loading: https://github.com/osmdroid/osmdroid/issues/1393#issuecomment-527144698
     implementation("com.caverock:androidsvg:1.4")
 
+    ////////// WIKIDATA //////////
     // Apache Jena from: https://jena.apache.org/download/maven.html
     // implementation("org.apache.jena:apache-jena-libs:2.11.0")
     implementation("mobi.seus.jena:jena-android-arq:2.13.0") {
@@ -127,31 +141,5 @@ dependencies {
         exclude("xml-apis", "xml-apis")
 
     }
-
-
-    // Solve NoSuchMethodError: org.apache.http.conn.ssl.SSLConnectionSocketFactory: https://stackoverflow.com/a/38233795
-    //implementation("commons-logging:commons-logging:1.1.1:provided")
-    //org.apache.http.impl.client.HttpClientBuilder
-
-    //implementation("org.apache.http.impl.client:httpclient:4.5.2") {
-//    implementation("org.apache.httpcomponents:httpclient:4.5.2") {
-//        exclude("commons-logging")
-//    }
-
-
-
-
-    //    val kotlinVersion = "1.8.0"
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-//    constraints {
-//        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion") {
-//            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib and to not fail builds due duplicate classes")
-//        }
-//        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion") {
-//            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib and to not fail builds due duplicate classes")
-//        }
-//    }
-
-
 
 }

@@ -242,6 +242,8 @@ public class Querier {
 
         // Create marker
         Marker marker = new Marker(mapView);
+        CustomInfoWindow ciw = new CustomInfoWindow(mapView, name);
+        marker.setInfoWindow(ciw);
 
         // Set position and name
         marker.setPosition(new GeoPoint(latitude, longitude));
@@ -256,6 +258,7 @@ public class Querier {
         }
         else {
             marker.setIcon(photoless);
+            ciw.showCameraButton();     // only show camera button if photo needs to be uploaded
             Log.i("ICON", "photoless: " + imageURL);
         }
 
