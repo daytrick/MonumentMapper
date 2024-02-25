@@ -131,8 +131,7 @@ public class Querier {
     private static void queryLocalMonuments(double longitude, double latitude) {
 
         String queryString =
-                "SELECT DISTINCT ?building ?buildingLabel ?coords ?image WHERE \n" +
-                "  {\n" +
+                "SELECT DISTINCT ?building ?buildingLabel ?coords ?image ?thumb WHERE {\n" +
                 "    # Accepted buildings from: https://www.wikilovesmonuments.org.uk/eligible-buildings\n" +
                 "    # How to do an OR from: https://stackoverflow.com/a/17600298\n" +
                 "    VALUES (?status) { (wd:Q10729054) (wd:Q10729125) (wd:Q10729142) }\n" +
@@ -140,7 +139,14 @@ public class Querier {
                 "    \n" +
                 "    # And get their images if they have them\n" +
                 "    OPTIONAL { ?building wdt:P18 ?image } .\n" +
-                "\n" +
+                "    \n" +
+                "    # Try to work out the thumbnail URL\n" +
+                "    # How to do so from: https://stackoverflow.com/a/67332685\n" +
+                "    BIND(REPLACE(wikibase:decodeUri(STR(?image)), \"http://commons.wikimedia.org/wiki/Special:FilePath/\", \"\") as ?fileName) .\n" +
+                "    BIND(REPLACE(?fileName, \" \", \"_\") as ?safeFileName)\n" +
+                "    BIND(MD5(?safeFileName) as ?fileNameMD5) .\n" +
+                "    BIND(CONCAT(\"https://upload.wikimedia.org/wikipedia/commons/thumb/\", SUBSTR(?fileNameMD5, 1, 1), \"/\", SUBSTR(?fileNameMD5, 1, 2), \"/\", ?safeFileName, \"/600px-\", ?safeFileName) as ?thumb)\n" +
+                "    \n" +
                 "  SERVICE wikibase:around {\n" +
                 "    ?building wdt:P625 ?coords .\n" +
                 "    # How to pass a specific location in from: https://stackoverflow.com/a/49315478\n" +
@@ -211,8 +217,8 @@ public class Querier {
                 String name = nameMatcher.group("name");
                 double latitude = Double.parseDouble(locMatcher.group("lat"));
                 double longitude = Double.parseDouble(locMatcher.group("long"));
-                if (qs.contains("image")) {
-                    String imageURL = qs.get("image").toString();
+                if (qs.contains("thumb")) {
+                    String imageURL = qs.get("thumb").toString();
                     addMarker(name, latitude, longitude, imageURL);
                 }
                 else {
@@ -308,7 +314,7 @@ public class Querier {
 
                                     Drawable image = getDrawableFromURL(imageURL);
                                     marker.setImage(image);
-                                    Log.i("TAP", "Displaying image for " + marker.getTitle());
+                                    Log.i("TAP", "Displaying image for " + marker.getTitle() + "(URL: " + imageURL + ")");
 
                             }
                             catch (IOException e) {
@@ -356,14 +362,16 @@ public class Querier {
      *
      * How to do so from: https://stackoverflow.com/a/9490060
      *
-     * @param url   the URL
+     * @param thumbnailURL   the URL
      * @return      the Drawable
      * @throws IOException
      */
-    private static Drawable getDrawableFromURL(String url) throws IOException {
+    private static Drawable getDrawableFromURL(String thumbnailURL) throws IOException {
 
-        url = secureURL(url);
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        //url = thumbnailify(url);
+        thumbnailURL = secureURL(thumbnailURL);
+        Log.i("THUMB", "Getting thumbnail: " + thumbnailURL);
+        HttpURLConnection conn = (HttpURLConnection) new URL(thumbnailURL).openConnection();
         conn.connect();
 
         InputStream input = conn.getInputStream();
