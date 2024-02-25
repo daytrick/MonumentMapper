@@ -74,6 +74,9 @@ class CameraActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * Take a photo and save it with the monument's name + timestamp.
+     */
     private fun takePhoto() {
 
         val timestamp = SimpleDateFormat(TIMESTAMP_FORMAT, Locale.UK).format(System.currentTimeMillis())
