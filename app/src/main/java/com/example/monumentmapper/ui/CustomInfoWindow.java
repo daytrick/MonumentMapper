@@ -13,7 +13,7 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 /**
  * Extend MarkerInfoWindow to look nicer.
  *
- * Idea from: https://stackoverflow.com/a/66195184
+ * Idea from: <a href="https://stackoverflow.com/a/66195184">https://stackoverflow.com/a/66195184</a>
  */
 public class CustomInfoWindow extends MarkerInfoWindow {
 
@@ -32,19 +32,16 @@ public class CustomInfoWindow extends MarkerInfoWindow {
 
         // Add onClickListener to camera button
         // How to do so from: https://stackoverflow.com/a/41389737
-        this.cameraButton.setOnClickListener(view -> {
-            Intent intent = new Intent(view.getContext(), CameraActivity.class);
-            intent.putExtra(NAME_KEY, monumentName);
-            view.getContext().startActivity(intent);
-        });
+        this.cameraButton.setOnClickListener(view -> onClickCameraButton(view, monumentName));
     }
-//
-//    private void onClickCameraButton() {
-//
-//        Intent intent = new Intent(mView.getContext(), CameraActivity.class);
-//        mView.getContext().startActivity(intent);
-//
-//    }
+
+    private void onClickCameraButton(View view, String monumentName) {
+
+        Intent intent = new Intent(view.getContext(), CameraActivity.class);
+        intent.putExtra(NAME_KEY, monumentName);
+        view.getContext().startActivity(intent);
+
+    }
 
     /**
      * Show the camera button.
