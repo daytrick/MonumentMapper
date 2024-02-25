@@ -1,5 +1,7 @@
 package com.example.monumentmapper.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
@@ -35,11 +37,37 @@ public class CustomInfoWindow extends MarkerInfoWindow {
         this.cameraButton.setOnClickListener(view -> onClickCameraButton(view, monumentName));
     }
 
+    /**
+     * Check if user really does intend to take a photo of that location,
+     * then open the camera up if they do.
+     *
+     * @param view          the map view
+     * @param monumentName  the monument's name
+     */
     private void onClickCameraButton(View view, String monumentName) {
+        // How to create confirmation dialogue from: https://developer.android.com/develop/ui/views/components/dialogs#java
 
-        Intent intent = new Intent(view.getContext(), CameraActivity.class);
-        intent.putExtra(NAME_KEY, monumentName);
-        view.getContext().startActivity(intent);
+        // TODO: check that the user is within 100m of that location
+
+        // Build the confirm alert
+        AlertDialog.Builder adb = new AlertDialog.Builder(view.getContext());
+        adb.setMessage("Are you sure you're taking a photo of " + monumentName + "?");
+
+        // Set confirm action (opening up camera activity)
+        adb.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
+            Intent intent = new Intent(view.getContext(), CameraActivity.class);
+            intent.putExtra(NAME_KEY, monumentName);
+            view.getContext().startActivity(intent);
+        });
+
+        // Set deny action
+        adb.setNegativeButton(R.string.no, (dialogInterface, i) -> {
+            // Do nothing?
+        });
+
+        // Actually create the confirmation alert
+        AlertDialog ad = adb.create();
+        ad.show();
 
     }
 
@@ -56,5 +84,20 @@ public class CustomInfoWindow extends MarkerInfoWindow {
     public void hideCameraButton() {
         cameraButton.setVisibility(View.GONE);
     }
+
+
+//    /**
+//     * Request a location update from the location manager.
+//     *
+//     * Based on code from: https://medium.com/@hasperong/get-current-location-with-latitude-and-longtitude-using-kotlin-2ef6c94c7b76
+//     */
+//    private void getLocation() {
+//        LocationManager locationManager = (LocationManager) this.getMapView().getContext().getSystemService(Context.LOCATION_SERVICE);
+//        if ((ContextCompat.checkSelfPermission(this.getMapView().getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+//            ActivityCompat.requestPermissions(getCon, new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+//        }
+//        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 5000, 5f, this);
+//        Log.i("LOC", "Got location!");
+//    }
 
 }

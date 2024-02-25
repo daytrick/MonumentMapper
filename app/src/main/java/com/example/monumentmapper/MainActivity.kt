@@ -17,14 +17,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.caverock.androidsvg.SVG
 import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
 import com.example.monumentmapper.ui.Querier
@@ -135,10 +133,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
         try {
-            val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null);
-            val photoless = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoless, null);
-//            val photoful = SVG.getFromResource(resources, R.drawable.marker_photoful)
-//            val photoless = SVG.getFromResource(resources, R.drawable.marker_photoless)
+            val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null)
+            val photoless = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoless, null)
             Querier.setMarkerIcons(photoful, photoless)
         }
         catch (e: SVGParseException) {
@@ -254,13 +250,13 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
             // Show login page
             val intent = Intent(this, LoginActivity::class.java)
             Log.i("MENU_CLICK", "Showing login page!")
-            startActivity(intent);
-            return true;
+            startActivity(intent)
+            return true
         }
         else {
             Log.i("MENU_CLICK", "Something else selected!")
             super.onOptionsItemSelected(item)
-            return false;
+            return false
         }
 
     }
@@ -273,7 +269,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
             val intent = Intent(this, LoginActivity::class.java)
             Log.i("MENU_CLICK", "Showing login page!")
             startActivity(intent)
-            true;
+            true
         }
 
         // DK
