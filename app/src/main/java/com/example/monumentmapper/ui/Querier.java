@@ -326,21 +326,23 @@ public class Querier {
                     // Run the thread
                     thread.start();
 
-//                    // Wait for the req to go through
-//                    try {
-//
-//                        thread.join(WAIT_TIME);
-//
-//                        // Reload the marker if user is still looking at it
-//                        if (marker.isInfoWindowOpen()) {
-//                            marker.showInfoWindow();
-//                        }
-//
-//                    } catch (InterruptedException e) {
-//                        Log.i("TAP", "Interrupted");
-//                        // Doesn't really matter - just won't see the image
-//                        // throw new RuntimeException(e);
-//                    }
+                    // Show the marker _text_ immediately
+                    marker.showInfoWindow();
+
+                    // Wait for the req to go through
+                    try {
+
+                        thread.join(WAIT_TIME);
+
+                        // Reload the marker if user is still looking at it
+                        if (marker.isInfoWindowOpen()) {
+                            marker.closeInfoWindow();
+                            marker.showInfoWindow();
+                        }
+
+                    } catch (InterruptedException e) {
+                        // Doesn't really matter - just won't see the image
+                    }
 
                 }
                 else {
