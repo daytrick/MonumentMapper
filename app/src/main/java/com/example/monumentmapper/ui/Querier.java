@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Log;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.ResourcesCompat;
 
 import java.io.ByteArrayOutputStream;
@@ -294,17 +295,16 @@ public class Querier {
 
                 Log.i("TAP", "Tapped " + marker.getTitle());
 
-                // Toggle display
+                // Show info window
                 if (!marker.isInfoWindowOpen()) {
                     marker.showInfoWindow();
                 }
-                else {
-                    marker.getInfoWindow().close();
-                }
-
 
                 // Only get the image if it hasn't already been loaded
                 if (marker.getImage() == null && imageURL != null) {
+
+                    // Show placeholder
+                    marker.setImage(AppCompatResources.getDrawable(mapView.getContext(), R.drawable.ic_launcher_foreground));
 
                     // Use a new Thread to avoid networking on the main thread
                     Thread thread = new Thread(new Runnable() {
@@ -326,21 +326,20 @@ public class Querier {
                     // Run the thread
                     thread.start();
 
-//                    // Wait for the req to go through
-//                    try {
-//
-//                        thread.join(WAIT_TIME);
-//
-//                        // Reload the marker if user is still looking at it
-//                        if (marker.isInfoWindowOpen()) {
-//                            marker.showInfoWindow();
-//                        }
-//
-//                    } catch (InterruptedException e) {
-//                        Log.i("TAP", "Interrupted");
-//                        // Doesn't really matter - just won't see the image
-//                        // throw new RuntimeException(e);
-//                    }
+                    // Wait for the req to go through
+                    try {
+
+                        thread.join(WAIT_TIME);
+
+                        // Reload the marker if user is still looking at it
+                        if (marker.isInfoWindowOpen()) {
+                            marker.closeInfoWindow();
+                            marker.showInfoWindow();
+                        }
+
+                    } catch (InterruptedException e) {
+                        // Doesn't really matter - just won't see the image
+                    }
 
                 }
                 else {
