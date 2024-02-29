@@ -1,15 +1,16 @@
 package com.example.monumentmapper.ui;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.monumentmapper.R;
+import com.example.monumentmapper.net.RouteFinder;
 import com.example.monumentmapper.ui.camera.CameraActivity;
 
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 /**
@@ -20,21 +21,36 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 public class CustomInfoWindow extends MarkerInfoWindow {
 
     public static final String NAME_KEY = "nameKey";
+    private final Marker marker;
     private final Button cameraButton;
+    private final Button addStopButton;
+    private final Button removeStopButton;
 
     /**
      * Construct a custom Info Window (larger, centred image + camera button).
      *
      * @param mapView the map the info window's marker is on
      */
-    public CustomInfoWindow(MapView mapView, String monumentName) {
+    public CustomInfoWindow(MapView mapView, String monumentName, Marker marker) {
 
         super(R.layout.bonuspack_bubble_custom, mapView);
-        this.cameraButton = (Button) mView.findViewById(R.id.bubble_camera_button);
 
-        // Add onClickListener to camera button
-        // How to do so from: https://stackoverflow.com/a/41389737
+        // Save ref to the marker
+        this.marker = marker;
+
+        // Camera button
+        // How to add onClickListener to camera button from: https://stackoverflow.com/a/41389737
+        this.cameraButton = (Button) mView.findViewById(R.id.bubble_camera_button);
         this.cameraButton.setOnClickListener(view -> onClickCameraButton(view, monumentName));
+
+        // Add stop button
+        this.addStopButton = (Button) mView.findViewById(R.id.bubble_add_stop_button);
+        this.addStopButton.setOnClickListener(view -> onClickAddStopButton());
+
+        // Add stop button
+        this.removeStopButton = (Button) mView.findViewById(R.id.bubble_remove_stop_button);
+        this.removeStopButton.setOnClickListener(view -> onClickRemoveStopButton());
+
     }
 
     /**
@@ -83,6 +99,34 @@ public class CustomInfoWindow extends MarkerInfoWindow {
      */
     public void hideCameraButton() {
         cameraButton.setVisibility(View.GONE);
+    }
+
+
+    /**
+     * Add the location to the route,
+     * hide the add stop button, and show the remove stop button.
+     */
+    private void onClickAddStopButton() {
+
+        // Add location to route
+        RouteFinder.addWaypoint(marker.getPosition());
+
+        // Toggle to remove stop
+        addStopButton.setVisibility(View.GONE);
+        removeStopButton.setVisibility(View.VISIBLE);
+
+    }
+
+
+    private void onClickRemoveStopButton() {
+
+        // Add location to route
+        RouteFinder.removeWaypoint(marker.getPosition());
+
+        // Toggle to remove stop
+        removeStopButton.setVisibility(View.GONE);
+        addStopButton.setVisibility(View.VISIBLE);
+
     }
 
 

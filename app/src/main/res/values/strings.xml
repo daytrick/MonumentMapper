@@ -22,8 +22,11 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
 
+    <string name="monument_image_default_desc">Monument image</string>
     <string name="take_photo_button_desc">Take photo</string>
     <string name="info_window_camera_button_desc">Take a photo</string>
+    <string name="info_window_add_stop_button_desc">Add stop</string>
+    <string name="info_window_remove_stop_button_desc">Remove stop</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 

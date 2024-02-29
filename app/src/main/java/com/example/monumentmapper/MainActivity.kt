@@ -25,7 +25,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
-import com.example.monumentmapper.ui.Querier
+import com.example.monumentmapper.net.Querier
+import com.example.monumentmapper.net.RouteFinder
 import com.example.monumentmapper.ui.login.LoginActivity
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
@@ -132,6 +133,9 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
+        Querier.init(myMap)
+        RouteFinder.init(myMap)
+
         try {
             val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null)
             val photoless = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoless, null)
@@ -141,7 +145,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
             Log.i("ICON", "Couldn't parse SVGs: " + e.toString())
         }
 
-        Querier.init(myMap)
 
         myLocationOverlay.runOnFirstFix {
             runOnUiThread {
@@ -150,6 +153,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
                 getLocation()
                 controller.setCenter(myLocationOverlay.myLocation)
                 controller.animateTo(myLocationOverlay.myLocation)
+                RouteFinder.updateLoc(myLocationOverlay.myLocation)
                 Log.i("LOC", "My location: ${myLocationOverlay.myLocation}")
 
                 updateScale()
@@ -302,8 +306,10 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     }
 
     override fun onLocationChanged(p0: Location) {
-        controller.setCenter(GeoPoint(p0.latitude, p0.longitude))
-
+        val currLoc = GeoPoint(p0.latitude, p0.longitude)
+        controller.setCenter(currLoc)
+        RouteFinder.updateLoc(currLoc)
+        Log.i("LOC_CHANGE", "Location changed: $currLoc")
     }
 
     override fun onPause() {
