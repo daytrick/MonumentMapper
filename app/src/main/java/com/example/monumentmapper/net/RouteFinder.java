@@ -22,6 +22,7 @@ public class RouteFinder {
     private static MapView mapView;
     private static RoadManager rm;
     private static ArrayList<GeoPoint> waypoints;
+    private static GeoPoint currentLocation;
     private static Polyline roadOverlay = null;
 
     /**
@@ -36,6 +37,10 @@ public class RouteFinder {
         rm = new OSRMRoadManager(mapView.getContext(), "Monument Mapper");
         waypoints = new ArrayList<>();
 
+    }
+
+    public static void updateLoc(GeoPoint currLoc) {
+        currentLocation = currLoc;
     }
 
 
@@ -67,9 +72,14 @@ public class RouteFinder {
             mapView.getOverlays().remove(roadOverlay);
         }
 
-        // Get the route async
-        AsyncTask<Object, Void, Road> task = new UpdateRoadTask();
-        task.execute(waypoints);
+        // Check if need to work out a route
+        if (!waypoints.isEmpty()) {
+
+            // Get the route async
+            AsyncTask<Object, Void, Road> task = new UpdateRoadTask();
+            task.execute(waypoints);
+
+        }
 
     }
 
@@ -87,7 +97,9 @@ public class RouteFinder {
          */
         @Override
         protected Road doInBackground(Object... objects) {
-            return rm.getRoad(waypoints);
+            ArrayList<GeoPoint> stops = (ArrayList<GeoPoint>) waypoints.clone();
+            stops.add(0, currentLocation);
+            return rm.getRoad(stops);
         }
 
         protected void onPostExecute(Road result) {

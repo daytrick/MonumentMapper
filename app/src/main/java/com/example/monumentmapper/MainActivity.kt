@@ -134,6 +134,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
         Querier.init(myMap)
+        RouteFinder.init(myMap)
+
         try {
             val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null)
             val photoless = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoless, null)
@@ -151,6 +153,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
                 getLocation()
                 controller.setCenter(myLocationOverlay.myLocation)
                 controller.animateTo(myLocationOverlay.myLocation)
+                RouteFinder.updateLoc(myLocationOverlay.myLocation)
                 Log.i("LOC", "My location: ${myLocationOverlay.myLocation}")
 
                 updateScale()
@@ -162,8 +165,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         }
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
-
-        RouteFinder.init(myMap);
 
     }
 
@@ -305,8 +306,10 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     }
 
     override fun onLocationChanged(p0: Location) {
-        controller.setCenter(GeoPoint(p0.latitude, p0.longitude))
-
+        val currLoc = GeoPoint(p0.latitude, p0.longitude)
+        controller.setCenter(currLoc)
+        RouteFinder.updateLoc(currLoc)
+        Log.i("LOC_CHANGE", "Location changed: $currLoc")
     }
 
     override fun onPause() {
