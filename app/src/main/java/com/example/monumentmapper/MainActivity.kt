@@ -25,7 +25,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
-import com.example.monumentmapper.ui.Querier
+import com.example.monumentmapper.net.Querier
 import com.example.monumentmapper.ui.login.LoginActivity
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
