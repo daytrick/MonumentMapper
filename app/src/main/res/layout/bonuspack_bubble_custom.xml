@@ -16,7 +16,8 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:contentDescription="@string/monument_image_default_desc" />
 
 
         <!-- Text -->
@@ -24,6 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -34,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
                     android:maxEms="17"
-                    android:layout_gravity="left"
+                    android:layout_gravity="start"
                     android:layout_weight="1"
                     android:text="Title" />
                 <Button android:id="@+id/bubble_moreinfo"
@@ -42,7 +44,7 @@
                     android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:layout_weight="0" />
             </LinearLayout>
             <TextView android:id="@+id/bubble_description"
@@ -62,14 +64,41 @@
                 android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Button for taking a photo -->
-        <Button
-            android:id="@+id/bubble_camera_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/camera_icon"
-            android:contentDescription="@string/info_window_camera_button_desc"
-            android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
 
+            <!-- Button for taking a photo -->
+            <Button
+                android:id="@+id/bubble_camera_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/camera_icon"
+                android:contentDescription="@string/info_window_camera_button_desc"
+                android:visibility="gone"
+                />
+
+            <!-- Button for adding stop -->
+            <Button
+                android:id="@+id/bubble_add_stop_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/stop_add"
+                android:contentDescription="@string/info_window_add_stop_button_desc"
+                />
+
+            <!-- Button for removing stop -->
+            <Button
+                android:id="@+id/bubble_remove_stop_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/stop_remove"
+                android:contentDescription="@string/info_window_remove_stop_button_desc"
+                android:visibility="gone"
+                />
+
+        </LinearLayout>
 
 </LinearLayout>

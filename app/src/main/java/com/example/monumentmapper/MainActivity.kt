@@ -26,6 +26,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
 import com.example.monumentmapper.net.Querier
+import com.example.monumentmapper.net.RouteFinder
 import com.example.monumentmapper.ui.login.LoginActivity
 import com.github.pengrad.mapscaleview.MapScaleView
 import com.google.android.material.navigation.NavigationView
@@ -132,6 +133,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate:in ${controller.zoomIn()}")
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
+        Querier.init(myMap)
         try {
             val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null)
             val photoless = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoless, null)
@@ -141,7 +143,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
             Log.i("ICON", "Couldn't parse SVGs: " + e.toString())
         }
 
-        Querier.init(myMap)
 
         myLocationOverlay.runOnFirstFix {
             runOnUiThread {
@@ -161,6 +162,8 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         }
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
+
+        RouteFinder.init(myMap);
 
     }
 
