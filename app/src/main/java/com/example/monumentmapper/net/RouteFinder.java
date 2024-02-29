@@ -22,6 +22,7 @@ public class RouteFinder {
     private static MapView mapView;
     private static RoadManager rm;
     private static ArrayList<GeoPoint> waypoints;
+    private static Polyline roadOverlay = null;
 
     /**
      * Set the map view that the RouteFinder will use.
@@ -61,7 +62,12 @@ public class RouteFinder {
      */
     private static void getRoute() {
 
-        // Do this async
+        // Remove old route, if need to
+        if (roadOverlay != null) {
+            mapView.getOverlays().remove(roadOverlay);
+        }
+
+        // Get the route async
         AsyncTask<Object, Void, Road> task = new UpdateRoadTask();
         task.execute(waypoints);
 
@@ -96,7 +102,7 @@ public class RouteFinder {
             }
 
             // Build a Polyline with the road (so it can be displayed)
-            Polyline roadOverlay = RoadManager.buildRoadOverlay(result);
+            roadOverlay = RoadManager.buildRoadOverlay(result);
 
             // Add the Polyline to the map
             mapView.getOverlays().add(roadOverlay);

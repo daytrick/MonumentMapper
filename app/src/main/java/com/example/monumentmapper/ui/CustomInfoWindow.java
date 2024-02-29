@@ -49,7 +49,7 @@ public class CustomInfoWindow extends MarkerInfoWindow {
 
         // Add stop button
         this.removeStopButton = (Button) mView.findViewById(R.id.bubble_remove_stop_button);
-        //this.addStopButton.setOnClickListener(view -> onClickAddStopButton());
+        this.removeStopButton.setOnClickListener(view -> onClickRemoveStopButton());
 
     }
 
@@ -112,7 +112,20 @@ public class CustomInfoWindow extends MarkerInfoWindow {
         RouteFinder.addWaypoint(marker.getPosition());
 
         // Toggle to remove stop
+        addStopButton.setVisibility(View.GONE);
         removeStopButton.setVisibility(View.VISIBLE);
+
+    }
+
+
+    private void onClickRemoveStopButton() {
+
+        // Add location to route
+        RouteFinder.removeWaypoint(marker.getPosition());
+
+        // Toggle to remove stop
+        removeStopButton.setVisibility(View.GONE);
+        addStopButton.setVisibility(View.VISIBLE);
 
     }
 
