@@ -2,6 +2,7 @@ package com.example.monumentmapper.ui;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.view.View;
 import android.widget.Button;
 
@@ -26,17 +27,20 @@ public class CustomInfoWindow extends MarkerInfoWindow {
     private final Button addStopButton;
     private final Button removeStopButton;
 
+    private Boolean photoful;
+
     /**
      * Construct a custom Info Window (larger, centred image + camera button).
      *
      * @param mapView the map the info window's marker is on
      */
-    public CustomInfoWindow(MapView mapView, String monumentName, Marker marker) {
+    public CustomInfoWindow(MapView mapView, String monumentName, Marker marker, Boolean photoful) {
 
         super(R.layout.bonuspack_bubble_custom, mapView);
 
-        // Save ref to the marker
+        // Save ref to the marker and photo
         this.marker = marker;
+        this.photoful = photoful;
 
         // Camera button
         // How to add onClickListener to camera button from: https://stackoverflow.com/a/41389737
@@ -115,9 +119,21 @@ public class CustomInfoWindow extends MarkerInfoWindow {
         addStopButton.setVisibility(View.GONE);
         removeStopButton.setVisibility(View.VISIBLE);
 
+        // Toggle marker icon
+        if (photoful) {
+            marker.setIcon(getMapView().getContext().getDrawable(R.drawable.marker_visit_photoful));
+        }
+        else {
+            marker.setIcon(getMapView().getContext().getDrawable(R.drawable.marker_visit_photoless));
+        }
+
     }
 
 
+    /**
+     * Remove the location from the route,
+     * show the add stop button, and hide the remove stop button.
+     */
     private void onClickRemoveStopButton() {
 
         // Add location to route
@@ -126,6 +142,14 @@ public class CustomInfoWindow extends MarkerInfoWindow {
         // Toggle to remove stop
         removeStopButton.setVisibility(View.GONE);
         addStopButton.setVisibility(View.VISIBLE);
+
+        // Toggle marker icon
+        if (photoful) {
+            marker.setIcon(getMapView().getContext().getDrawable(R.drawable.marker_photoful));
+        }
+        else {
+            marker.setIcon(getMapView().getContext().getDrawable(R.drawable.marker_photoless));
+        }
 
     }
 
