@@ -232,7 +232,7 @@ public class Querier {
 
         // Create marker
         Marker marker = new Marker(mapView);
-        CustomInfoWindow ciw = new CustomInfoWindow(mapView, name, marker);
+        CustomInfoWindow ciw = new CustomInfoWindow(mapView, name, marker, imageURL != null);
         marker.setInfoWindow(ciw);
 
         // Set position and name
