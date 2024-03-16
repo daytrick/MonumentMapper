@@ -1,6 +1,9 @@
 package com.example.monumentmapper.net;
 
 import android.os.AsyncTask;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.monumentmapper.ui.CustomInfoWindow;
@@ -24,6 +27,7 @@ public class RouteFinder {
 
     private static MapView mapView;
     private static RoadManager rm;
+    private static Button clearRouteButton;
 
     private static ArrayList<Marker> stops;
     private static ArrayList<GeoPoint> waypoints;
@@ -33,10 +37,13 @@ public class RouteFinder {
     /**
      * Set the map view that the RouteFinder will use.
      * @param mapView the map view
+     * @param clearRouteButton the clear route button
      */
-    public static void init(MapView mapView) {
+    public static void init(MapView mapView, Button clearRouteButton) {
 
         RouteFinder.mapView = mapView;
+        RouteFinder.clearRouteButton = clearRouteButton;
+        Log.i("BUTTON", "Got clear route button!" + clearRouteButton);
 
         // User agent is basically who's using the OSMDroid server: https://stackoverflow.com/a/48841423
         rm = new OSRMRoadManager(mapView.getContext(), "Monument Mapper");
@@ -50,6 +57,10 @@ public class RouteFinder {
 
     }
 
+    /**
+     * Update the starting location that RouteFinder will use.
+     * @param currLoc new current location
+     */
     public static void updateLoc(GeoPoint currLoc) {
         currentLocation = currLoc;
     }
@@ -60,9 +71,17 @@ public class RouteFinder {
      * @param marker marker for the stop
      */
     public static void addStop(Marker marker) {
+
+        // Add the stop
         stops.add(marker);
         waypoints.add(marker.getPosition());
+
+        // Get new route
         getRoute();
+
+        // Display clear button
+        clearRouteButton.setVisibility(View.VISIBLE);
+
     }
 
     /**
@@ -70,9 +89,19 @@ public class RouteFinder {
      * @param marker marker for the stop
      */
     public static void removeStop(Marker marker) {
+
+        // Remove the stop
         stops.remove(marker);
         waypoints.remove(marker.getPosition());
+
+        // Get new route
         getRoute();
+
+        // Hide clear button if necessary
+        if (stops.isEmpty()) {
+            clearRouteButton.setVisibility(View.GONE);
+        }
+
     }
 
 
@@ -96,6 +125,9 @@ public class RouteFinder {
         // Clear route
         mapView.getOverlays().remove(roadOverlay);
         roadOverlay = null;
+
+        // Hide button
+        clearRouteButton.setVisibility(View.GONE);
 
     }
 

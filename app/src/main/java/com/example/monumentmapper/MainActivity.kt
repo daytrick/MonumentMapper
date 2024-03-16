@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
         Querier.init(myMap)
-        RouteFinder.init(myMap)
+        RouteFinder.init(myMap, findViewById(R.id.clearRouteButton))
 
         try {
             val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null)
@@ -174,6 +174,9 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     }
 
 
+    /**
+     * Set a listener for the clear route button.
+     */
     private fun setClearRouteButtonListener() {
 
         val clearRouteButton: Button = findViewById(R.id.clearRouteButton)

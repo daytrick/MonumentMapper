@@ -143,6 +143,10 @@ public class CustomInfoWindow extends MarkerInfoWindow {
     }
 
 
+    /**
+     * Reset the marker so that it isn't marked as a stop.
+     * (Does not remove it from RouteFinder list though.)
+     */
     public void resetMarker() {
 
         // Toggle to remove stop

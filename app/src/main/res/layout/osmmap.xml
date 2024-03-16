@@ -35,6 +35,7 @@
             app:backgroundTint="@null"
             android:background="@drawable/clear_route_button"
             android:contentDescription="@string/clear_route_desc"
+            android:visibility="gone"
             android:layout_alignEnd="@id/osmmap">
 
         </Button>
