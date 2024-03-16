@@ -306,10 +306,11 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     }
 
     override fun onLocationChanged(p0: Location) {
+
         val currLoc = GeoPoint(p0.latitude, p0.longitude)
-        controller.setCenter(currLoc)
         RouteFinder.updateLoc(currLoc)
         Log.i("LOC_CHANGE", "Location changed: $currLoc")
+
     }
 
     override fun onPause() {
@@ -328,6 +329,12 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         // Re-enable location tracking
         myLocationOverlay.enableMyLocation()
         myLocationOverlay.enableFollowLocation()
+
+        // Reload location
+        getLocation()
+        controller.setCenter(myLocationOverlay.myLocation)
+        controller.animateTo(myLocationOverlay.myLocation)
+        RouteFinder.updateLoc(myLocationOverlay.myLocation)
 
     }
 
