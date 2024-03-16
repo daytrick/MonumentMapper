@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -41,6 +42,8 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import android.view.View
+import org.osmdroid.views.overlay.Marker
 
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener {
@@ -165,6 +168,19 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         }
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
+
+        setClearRouteButtonListener()
+
+    }
+
+
+    private fun setClearRouteButtonListener() {
+
+        val clearRouteButton: Button = findViewById(R.id.clearRouteButton)
+        clearRouteButton.setOnClickListener {
+            RouteFinder.clearRoute()
+            android.util.Log.d("BUTTONS", "Clear route button tapped")
+        }
 
     }
 

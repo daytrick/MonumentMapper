@@ -3,11 +3,14 @@ package com.example.monumentmapper.net;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.example.monumentmapper.ui.CustomInfoWindow;
+
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
@@ -21,6 +24,8 @@ public class RouteFinder {
 
     private static MapView mapView;
     private static RoadManager rm;
+
+    private static ArrayList<Marker> stops;
     private static ArrayList<GeoPoint> waypoints;
     private static GeoPoint currentLocation;
     private static Polyline roadOverlay = null;
@@ -40,6 +45,7 @@ public class RouteFinder {
         ((OSRMRoadManager) rm).setMean(OSRMRoadManager.MEAN_BY_FOOT);
 
         // Initialise with no stops
+        stops = new ArrayList<>();
         waypoints = new ArrayList<>();
 
     }
@@ -50,21 +56,47 @@ public class RouteFinder {
 
 
     /**
-     * Add a waypoint to the route.
-     * @param waypoint
+     * Add a stop to the route.
+     * @param marker marker for the stop
      */
-    public static void addWaypoint(GeoPoint waypoint) {
-        waypoints.add(waypoint);
+    public static void addStop(Marker marker) {
+        stops.add(marker);
+        waypoints.add(marker.getPosition());
         getRoute();
     }
 
     /**
      * Remove a waypoint from the route.
-     * @param waypoint
+     * @param marker marker for the stop
      */
-    public static void removeWaypoint(GeoPoint waypoint) {
-        waypoints.remove(waypoint);
+    public static void removeStop(Marker marker) {
+        stops.remove(marker);
+        waypoints.remove(marker.getPosition());
         getRoute();
+    }
+
+
+    /**
+     * Clear the route.
+     */
+    public static void clearRoute() {
+
+        // Inform user
+        Toast.makeText(mapView.getContext(), "Clearing route", Toast.LENGTH_SHORT).show();
+
+        // Change markers back
+        for (Marker marker : stops) {
+            ((CustomInfoWindow) marker.getInfoWindow()).resetMarker();
+        }
+
+        // Clear stops
+        stops.clear();
+        waypoints.clear();
+
+        // Clear route
+        mapView.getOverlays().remove(roadOverlay);
+        roadOverlay = null;
+
     }
 
     /**
