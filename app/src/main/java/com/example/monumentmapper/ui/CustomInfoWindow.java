@@ -2,7 +2,6 @@ package com.example.monumentmapper.ui;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.view.View;
 import android.widget.Button;
 
@@ -113,7 +112,7 @@ public class CustomInfoWindow extends MarkerInfoWindow {
     private void onClickAddStopButton() {
 
         // Add location to route
-        RouteFinder.addWaypoint(marker.getPosition());
+        RouteFinder.addStop(marker);
 
         // Toggle to remove stop
         addStopButton.setVisibility(View.GONE);
@@ -136,8 +135,19 @@ public class CustomInfoWindow extends MarkerInfoWindow {
      */
     private void onClickRemoveStopButton() {
 
-        // Add location to route
-        RouteFinder.removeWaypoint(marker.getPosition());
+        // Remove location from route
+        RouteFinder.removeStop(marker);
+
+        resetMarker();
+
+    }
+
+
+    /**
+     * Reset the marker so that it isn't marked as a stop.
+     * (Does not remove it from RouteFinder list though.)
+     */
+    public void resetMarker() {
 
         // Toggle to remove stop
         removeStopButton.setVisibility(View.GONE);

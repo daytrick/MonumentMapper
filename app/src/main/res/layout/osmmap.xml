@@ -6,7 +6,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    tools:ignore="ExtraText">
 
     <org.osmdroid.views.MapView
         android:id="@+id/osmmap"
@@ -23,4 +24,21 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"/>
 
+        <!-- Button for clearing route -->
+        <!-- How to add button to map view from: https://stackoverflow.com/a/40944023 -->
+        <!-- How to clear background from: https://stackoverflow.com/a/67763073 E-->
+        <Button
+            android:id="@+id/clearRouteButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="10dp"
+            app:backgroundTint="@null"
+            android:background="@drawable/clear_route_button"
+            android:contentDescription="@string/clear_route_desc"
+            android:visibility="gone"
+            android:layout_alignEnd="@id/osmmap">
+
+        </Button>
+
+z
 </RelativeLayout>

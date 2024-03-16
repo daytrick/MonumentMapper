@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -41,6 +42,8 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import android.view.View
+import org.osmdroid.views.overlay.Marker
 
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener {
@@ -134,7 +137,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         Log.i("LOC", "onCreate: out  ${controller.zoomOut()}")
 
         Querier.init(myMap)
-        RouteFinder.init(myMap)
+        RouteFinder.init(myMap, findViewById(R.id.clearRouteButton))
 
         try {
             val photoful = ResourcesCompat.getDrawable(resources, R.drawable.marker_photoful, null)
@@ -165,6 +168,22 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         }
         myMap.overlays.add(myLocationOverlay)
         myMap.addMapListener(this)
+
+        setClearRouteButtonListener()
+
+    }
+
+
+    /**
+     * Set a listener for the clear route button.
+     */
+    private fun setClearRouteButtonListener() {
+
+        val clearRouteButton: Button = findViewById(R.id.clearRouteButton)
+        clearRouteButton.setOnClickListener {
+            RouteFinder.clearRoute()
+            android.util.Log.d("BUTTONS", "Clear route button tapped")
+        }
 
     }
 
@@ -306,10 +325,11 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     }
 
     override fun onLocationChanged(p0: Location) {
+
         val currLoc = GeoPoint(p0.latitude, p0.longitude)
-        controller.setCenter(currLoc)
         RouteFinder.updateLoc(currLoc)
         Log.i("LOC_CHANGE", "Location changed: $currLoc")
+
     }
 
     override fun onPause() {
@@ -328,6 +348,12 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         // Re-enable location tracking
         myLocationOverlay.enableMyLocation()
         myLocationOverlay.enableFollowLocation()
+
+        // Reload location
+        getLocation()
+        controller.setCenter(myLocationOverlay.myLocation)
+        controller.animateTo(myLocationOverlay.myLocation)
+        RouteFinder.updateLoc(myLocationOverlay.myLocation)
 
     }
 
