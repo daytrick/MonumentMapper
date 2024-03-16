@@ -35,6 +35,11 @@ public class RouteFinder {
 
         // User agent is basically who's using the OSMDroid server: https://stackoverflow.com/a/48841423
         rm = new OSRMRoadManager(mapView.getContext(), "Monument Mapper");
+
+        // Want walking routes
+        ((OSRMRoadManager) rm).setMean(OSRMRoadManager.MEAN_BY_FOOT);
+
+        // Initialise with no stops
         waypoints = new ArrayList<>();
 
     }
