@@ -114,7 +114,7 @@ class CameraActivity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val message = "Photo saved at: ${output.savedUri}"
+                    val message = "Photo saved to Gallery/Monument Mapper"
                     Toast.makeText(baseContext, message, Toast.LENGTH_SHORT).show()
                     Log.i("CAMERA", "Photo saved")
                 }

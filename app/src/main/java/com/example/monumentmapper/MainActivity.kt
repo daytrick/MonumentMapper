@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
@@ -42,11 +43,27 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import android.view.View
-import org.osmdroid.views.overlay.Marker
 
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener {
+
+    // Permissions
+//    val locationPermissionRequest = registerForActivityResult(
+//        ActivityResultContracts.RequestMultiplePermissions()
+//    ) { permissions ->
+//        when {
+//            permissions.getOrDefault(android.Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+//                // Precise location access granted.
+//                init()
+//            }
+//            permissions.getOrDefault(android.Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+//                // Only approximate location access granted.
+//            } else -> {
+//            // No location access granted.
+//            Toast.makeText(this, "Need location permission", Toast.LENGTH_SHORT).show()
+//        }
+//        }
+//    }
 
     // For nav sidebar
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -70,6 +87,25 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Get permissions before starting up
+        if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_CODE)
+        }
+        else {
+            init()
+        }
+
+
+    }
+
+
+    /**
+     * Split initialisation code into new func so can delay start-up until have permissions.
+     *
+     * Paradigm from: https://stackoverflow.com/a/52378648
+     */
+    private fun init() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -120,7 +156,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
             0)
 
         // Centre map view
-        myMap.mapCenter
         myMap.setMultiTouchControls(true)
         myMap.getLocalVisibleRect(Rect())
         scaleView = findViewById(R.id.scaleView)
@@ -216,23 +251,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_CODE)
         }
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                android.Manifest.permission.ACCESS_FINE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//                this,
-//                android.Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return
-//        }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, this)
         Log.i("LOC", "Got location!")
     }
@@ -244,11 +262,12 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+                init()
             }
-            else {
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
-            }
+//            else {
+//                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_CODE)
+//            }
         }
     }
 
@@ -345,15 +364,25 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
         super.onResume()
 
-        // Re-enable location tracking
-        myLocationOverlay.enableMyLocation()
-        myLocationOverlay.enableFollowLocation()
+        // Check that still have permissions
+        if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
 
-        // Reload location
-        getLocation()
-        controller.setCenter(myLocationOverlay.myLocation)
-        controller.animateTo(myLocationOverlay.myLocation)
-        RouteFinder.updateLoc(myLocationOverlay.myLocation)
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_CODE)
+
+        }
+        else {
+
+            // Re-enable location tracking
+            myLocationOverlay.enableMyLocation()
+            myLocationOverlay.enableFollowLocation()
+
+            // Reload location
+            getLocation()
+            controller.setCenter(myLocationOverlay.myLocation)
+            controller.animateTo(myLocationOverlay.myLocation)
+            RouteFinder.updateLoc(myLocationOverlay.myLocation)
+
+        }
 
     }
 

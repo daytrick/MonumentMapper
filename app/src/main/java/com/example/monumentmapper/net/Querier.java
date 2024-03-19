@@ -115,33 +115,39 @@ public class Querier {
     private static void queryLocalMonuments(double longitude, double latitude) {
 
         String queryString =
-                "SELECT DISTINCT ?building ?buildingLabel ?coords ?image ?thumb WHERE {\n" +
-                "    # Accepted buildings from: https://www.wikilovesmonuments.org.uk/eligible-buildings\n" +
-                "    # How to do an OR from: https://stackoverflow.com/a/17600298\n" +
-                "    VALUES (?status) { (wd:Q10729054) (wd:Q10729125) (wd:Q10729142) }\n" +
-                "    ?building wdt:P1435 ?status .\n" +
-                "    \n" +
-                "    # And get their images if they have them\n" +
-                "    OPTIONAL { ?building wdt:P18 ?image } .\n" +
-                "    \n" +
-                "    # Try to work out the thumbnail URL\n" +
-                "    # How to do so from: https://stackoverflow.com/a/67332685\n" +
-                "    BIND(REPLACE(wikibase:decodeUri(STR(?image)), \"http://commons.wikimedia.org/wiki/Special:FilePath/\", \"\") as ?fileName) .\n" +
-                "    BIND(REPLACE(?fileName, \" \", \"_\") as ?safeFileName)\n" +
-                "    BIND(MD5(?safeFileName) as ?fileNameMD5) .\n" +
-                "    BIND(CONCAT(\"https://upload.wikimedia.org/wikipedia/commons/thumb/\", SUBSTR(?fileNameMD5, 1, 1), \"/\", SUBSTR(?fileNameMD5, 1, 2), \"/\", ?safeFileName, \"/600px-\", ?safeFileName) as ?thumb)\n" +
-                "    \n" +
-                "  SERVICE wikibase:around {\n" +
-                "    ?building wdt:P625 ?coords .\n" +
-                "    # How to pass a specific location in from: https://stackoverflow.com/a/49315478\n" +
-                "    bd:serviceParam wikibase:center \"Point(" + longitude + " " + latitude + ")\"^^geo:wktLiteral .\n" +
-                "    bd:serviceParam wikibase:radius \"2\" .\n" +
-                "  }\n" +
-                "\n" +
-                "  SERVICE wikibase:label {\n" +
-                "    bd:serviceParam wikibase:language \"en\" .\n" +
-                "  }\n" +
-                "}\n";
+                    "SELECT DISTINCT ?building ?buildingLabel ?coords ?image ?thumb WHERE {\n" +
+                    "  # Accepted buildings from: https://www.wikilovesmonuments.org.uk/eligible-buildings\n" +
+                    "  # How to do an OR from: https://stackoverflow.com/a/17600298\n" +
+                    "  VALUES (?status) { \n" +
+                    "    (wd:Q10729054) (wd:Q10729125) (wd:Q10729142)   # Historic Scotland\n" +
+                    "    (wd:Q15700818) (wd:Q15700834)                  # Historic England and Cadw\n" +
+                    "    (wd:Q71055272)                                 # Northern Ireland Environment Agency\n" +
+                    "    (wd:Q219538)                                   # Scheduled monuments (UK)\n" +
+                    "    (wd:Q78834458)                                 # Historic Environment Scotland scheduled monument\n" +
+                    "  }\n" +
+                    "  ?building wdt:P1435 ?status .\n" +
+                    "\n" +
+                    "  # And get their images if they have them\n" +
+                    "  OPTIONAL { ?building wdt:P18 ?image } .\n" +
+                    "  \n" +
+                    "  # Try to work out the thumbnail URL\n" +
+                    "  # How to do so from: https://stackoverflow.com/a/67332685\n" +
+                    "  BIND(REPLACE(wikibase:decodeUri(STR(?image)), \"http://commons.wikimedia.org/wiki/Special:FilePath/\", \"\") as ?fileName) .\n" +
+                    "  BIND(REPLACE(?fileName, \" \", \"_\") as ?safeFileName)\n" +
+                    "  BIND(MD5(?safeFileName) as ?fileNameMD5) .\n" +
+                    "  BIND(CONCAT(\"https://upload.wikimedia.org/wikipedia/commons/thumb/\", SUBSTR(?fileNameMD5, 1, 1), \"/\", SUBSTR(?fileNameMD5, 1, 2), \"/\", ?safeFileName, \"/600px-\", ?safeFileName) as ?thumb)\n" +
+                    "\n" +
+                    "  SERVICE wikibase:around {\n" +
+                    "    ?building wdt:P625 ?coords .\n" +
+                    "    # How to pass a specific location in from: https://stackoverflow.com/a/49315478\n" +
+                    "    bd:serviceParam wikibase:center \"Point(" + longitude + " " + latitude + ")\"^^geo:wktLiteral .\n" +
+                    "    bd:serviceParam wikibase:radius \"2\" .\n" +
+                    "  }\n" +
+                    "\n" +
+                    "  SERVICE wikibase:label {\n" +
+                    "    bd:serviceParam wikibase:language \"en\" .\n" +
+                    "  }\n" +
+                    "}\n";
 
 
         // Make the query, inc. the prefix defs
