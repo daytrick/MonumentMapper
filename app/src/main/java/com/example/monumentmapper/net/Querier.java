@@ -135,12 +135,12 @@ public class Querier {
                     "  BIND(REPLACE(wikibase:decodeUri(STR(?image)), \"http://commons.wikimedia.org/wiki/Special:FilePath/\", \"\") as ?fileName) .\n" +
                     "  BIND(REPLACE(?fileName, \" \", \"_\") as ?safeFileName)\n" +
                     "  BIND(MD5(?safeFileName) as ?fileNameMD5) .\n" +
-                    "  BIND(CONCAT(\"https://upload.wikimedia.org/wikipedia/commons/thumb/\", SUBSTR(?fileNameMD5, 1, 1), \"/\", SUBSTR(?fileNameMD5, 1, 2), \"/\", ?safeFileName, \"/250px-\", ?safeFileName) as ?thumb)\n" +
+                    "  BIND(CONCAT(\"https://upload.wikimedia.org/wikipedia/commons/thumb/\", SUBSTR(?fileNameMD5, 1, 1), \"/\", SUBSTR(?fileNameMD5, 1, 2), \"/\", ?safeFileName, \"/600px-\", ?safeFileName) as ?thumb)\n" +
                     "\n" +
                     "  SERVICE wikibase:around {\n" +
                     "    ?building wdt:P625 ?coords .\n" +
                     "    # How to pass a specific location in from: https://stackoverflow.com/a/49315478\n" +
-                            "    bd:serviceParam wikibase:center \"Point(" + longitude + " " + latitude + ")\"^^geo:wktLiteral .\n" +
+                    "    bd:serviceParam wikibase:center \"Point(" + longitude + " " + latitude + ")\"^^geo:wktLiteral .\n" +
                     "    bd:serviceParam wikibase:radius \"2\" .\n" +
                     "  }\n" +
                     "\n" +
