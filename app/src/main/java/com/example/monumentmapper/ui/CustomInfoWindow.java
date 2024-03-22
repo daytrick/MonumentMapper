@@ -163,19 +163,4 @@ public class CustomInfoWindow extends MarkerInfoWindow {
 
     }
 
-
-//    /**
-//     * Request a location update from the location manager.
-//     *
-//     * Based on code from: https://medium.com/@hasperong/get-current-location-with-latitude-and-longtitude-using-kotlin-2ef6c94c7b76
-//     */
-//    private void getLocation() {
-//        LocationManager locationManager = (LocationManager) this.getMapView().getContext().getSystemService(Context.LOCATION_SERVICE);
-//        if ((ContextCompat.checkSelfPermission(this.getMapView().getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
-//            ActivityCompat.requestPermissions(getCon, new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-//        }
-//        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 5000, 5f, this);
-//        Log.i("LOC", "Got location!");
-//    }
-
 }

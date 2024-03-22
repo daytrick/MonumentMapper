@@ -30,6 +30,9 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
+/**
+ * Static class for querying Wikidata.
+ */
 public class Querier {
 
     /**
@@ -65,6 +68,10 @@ public class Querier {
         Querier.photoless = photoless;
     }
 
+    /**
+     * Define the Wikibase prefixes.
+     * @param mapView the map view
+     */
     public static void init(MapView mapView) {
 
         // Define the Wikibase prefixes
@@ -155,17 +162,8 @@ public class Querier {
         Log.i("MAR", "Going to build query!");
         Query query = QueryFactory.parse(new Query(WD_PREFIXES), queryString, null, null);
 
-//        ParameterizedSparqlString pss = new ParameterizedSparqlString(queryString);
-//        pss.setNsPrefixes(WD_PREFIXES.getPrefixMapping());
-//        pss.setLiteral("long", longitude);
-//        pss.setLiteral("lat", latitude);
-//        Log.i("QUERY", pss.toString());
-//        Query query = pss.asQuery();
-
-        QueryExecution qExec = QueryExecutionFactory.sparqlService(WD_ENDPOINT, query);
-        Log.i("MAR", "Built query!");
-
-        try {
+        try (QueryExecution qExec = QueryExecutionFactory.sparqlService(WD_ENDPOINT, query)) {
+            Log.i("MAR", "Built query!");
             Log.i("MAR", "Trying to select results!");
             ResultSet results = qExec.execSelect();
 
@@ -174,15 +172,12 @@ public class Querier {
                 QuerySolution qs = results.nextSolution();
                 Log.i("POINT", qs.get("coords").toString());
                 processMonumentQuery(qs);
-                //addMarker(monumentData);
 
             }
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             Log.i("MAR", "Error getting query results: " + ex);
-        } finally {
-            qExec.close();
         }
     }
 
