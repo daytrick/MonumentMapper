@@ -4,12 +4,3 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.9.0" apply false
 }
 
-//configurations {
-//
-//    implementation.exclude module:'guava-jdk5'
-//    all*.exclude group: 'com.google.guava', module: 'listenablefuture'
-//}
-
-//configurations{
-//    implementation.exclude("org.apache.jena", "jena-core")
-//}
