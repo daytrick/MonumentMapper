@@ -1,7 +1,6 @@
 package com.example.monumentmapper
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.location.Location
@@ -9,30 +8,16 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Button
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.caverock.androidsvg.SVGParseException
 import com.example.monumentmapper.databinding.ActivityMainBinding
 import com.example.monumentmapper.net.Querier
 import com.example.monumentmapper.net.RouteFinder
-import com.example.monumentmapper.ui.login.LoginActivity
 import com.github.pengrad.mapscaleview.MapScaleView
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -47,33 +32,13 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
-    // Permissions
-//    val locationPermissionRequest = registerForActivityResult(
-//        ActivityResultContracts.RequestMultiplePermissions()
-//    ) { permissions ->
-//        when {
-//            permissions.getOrDefault(android.Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-//                // Precise location access granted.
-//                init()
-//            }
-//            permissions.getOrDefault(android.Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-//                // Only approximate location access granted.
-//            } else -> {
-//            // No location access granted.
-//            Toast.makeText(this, "Need location permission", Toast.LENGTH_SHORT).show()
-//        }
-//        }
-//    }
-
-    // For nav sidebar
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     // For map view
     // From: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
-    lateinit var myMap: MapView
-    lateinit var controller: IMapController
-    lateinit var myLocationOverlay: MyLocationNewOverlay
+    private lateinit var myMap: MapView
+    private lateinit var controller: IMapController
+    private lateinit var myLocationOverlay: MyLocationNewOverlay
     // From: https://medium.com/@hasperong/get-current-location-with-latitude-and-longtitude-using-kotlin-2ef6c94c7b76
     private lateinit var locationManager: LocationManager
     private val LOCATION_PERMISSION_CODE = 2
@@ -83,7 +48,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
     private val MAX_ZOOM_LEVEL = 20.0
 
     // For scale
-    lateinit var scaleView: MapScaleView
+    private lateinit var scaleView: MapScaleView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,33 +74,6 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // FOR NAV BAR
-        setSupportActionBar(binding.appBarMain.toolbar)
-
-        binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            Log.i("MENU_CLICK", "onClickListener activated")
-        }
-
-        binding.appBarMain.toolbar.setOnMenuItemClickListener(Toolbar.OnMenuItemClickListener() {
-            Log.i("MENU_CLICK", "In the binding")
-            menuClickListener(it)
-        })
-
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_account
-            ), drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
 
         // FOR MAP VIEW
         // @me check what this is for
@@ -271,61 +209,7 @@ class MainActivity : AppCompatActivity(), MapListener, LocationListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Log.i("MENU_CREATE", "Created options menu!")
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
 
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    /**
-     * For selecting a menu item in the nav bar.
-     *
-     * Documentation: https://developer.android.com/develop/ui/views/components/appbar/actions#handle-actions
-     */
-    fun menuClickListener(item: MenuItem): Boolean {
-
-        Log.i("MENU_CLICK", "Detected a click!")
-
-        if (item.itemId == R.id.nav_account) {
-            // Show login page
-            val intent = Intent(this, LoginActivity::class.java)
-            Log.i("MENU_CLICK", "Showing login page!")
-            startActivity(intent)
-            return true
-        }
-        else {
-            Log.i("MENU_CLICK", "Something else selected!")
-            super.onOptionsItemSelected(item)
-            return false
-        }
-
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-
-        // Clicked on account
-        R.id.nav_account -> {
-            // Show login page
-            val intent = Intent(this, LoginActivity::class.java)
-            Log.i("MENU_CLICK", "Showing login page!")
-            startActivity(intent)
-            true
-        }
-
-        // DK
-        else -> {
-            Log.i("MENU_CLICK", "Something else selected!")
-            super.onOptionsItemSelected(item)
-        }
-
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
 
     override fun onScroll(event: ScrollEvent?): Boolean {
         // Copied from: https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe
